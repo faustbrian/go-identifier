@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
-	identifieruuid "github.com/faustbrian/golib/pkg/identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier"
+	identifieruuid "github.com/faustbrian/go-identifier/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 

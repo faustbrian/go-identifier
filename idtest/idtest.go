@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
+	identifier "github.com/faustbrian/go-identifier"
 )
 
 // Clock is a mutex-protected deterministic clock.

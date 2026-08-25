@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
-	identifiertypeid "github.com/faustbrian/golib/pkg/identifier/typeid"
-	identifieruuid "github.com/faustbrian/golib/pkg/identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier"
+	identifiertypeid "github.com/faustbrian/go-identifier/typeid"
+	identifieruuid "github.com/faustbrian/go-identifier/uuid"
 )
 
 func TestOfficialVectorsRoundTrip(t *testing.T) {

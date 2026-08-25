@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
+	identifier "github.com/faustbrian/go-identifier"
 )
 
 func TestRemainingULIDBoundaries(t *testing.T) {

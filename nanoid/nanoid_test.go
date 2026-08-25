@@ -7,8 +7,8 @@ import (
 	"io"
 	"testing"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
-	identifiernanoid "github.com/faustbrian/golib/pkg/identifier/nanoid"
+	identifier "github.com/faustbrian/go-identifier"
+	identifiernanoid "github.com/faustbrian/go-identifier/nanoid"
 )
 
 type failingReader struct{}

@@ -1,4 +1,4 @@
-module github.com/faustbrian/golib/pkg/identifier
+module github.com/faustbrian/go-identifier
 
 go 1.26.6
 

@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
-	identifierksuid "github.com/faustbrian/golib/pkg/identifier/ksuid"
-	identifiernanoid "github.com/faustbrian/golib/pkg/identifier/nanoid"
-	identifiertypeid "github.com/faustbrian/golib/pkg/identifier/typeid"
-	identifierulid "github.com/faustbrian/golib/pkg/identifier/ulid"
-	identifieruuid "github.com/faustbrian/golib/pkg/identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier"
+	identifierksuid "github.com/faustbrian/go-identifier/ksuid"
+	identifiernanoid "github.com/faustbrian/go-identifier/nanoid"
+	identifiertypeid "github.com/faustbrian/go-identifier/typeid"
+	identifierulid "github.com/faustbrian/go-identifier/ulid"
+	identifieruuid "github.com/faustbrian/go-identifier/uuid"
 )
 
 func TestTimestampAndTopologyLeakageIsExact(t *testing.T) {

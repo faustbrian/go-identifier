@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
-	identifierksuid "github.com/faustbrian/golib/pkg/identifier/ksuid"
+	identifier "github.com/faustbrian/go-identifier"
+	identifierksuid "github.com/faustbrian/go-identifier/ksuid"
 	segmentksuid "github.com/segmentio/ksuid"
 )
 

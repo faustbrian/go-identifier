@@ -4,9 +4,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/faustbrian/golib/pkg/identifier/idtest"
-	identifiernanoid "github.com/faustbrian/golib/pkg/identifier/nanoid"
-	identifieruuid "github.com/faustbrian/golib/pkg/identifier/uuid"
+	"github.com/faustbrian/go-identifier/idtest"
+	identifiernanoid "github.com/faustbrian/go-identifier/nanoid"
+	identifieruuid "github.com/faustbrian/go-identifier/uuid"
 )
 
 type cyclingByteReader struct {

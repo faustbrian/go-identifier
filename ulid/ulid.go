@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
+	identifier "github.com/faustbrian/go-identifier"
 	oklogulid "github.com/oklog/ulid/v2"
 )
 

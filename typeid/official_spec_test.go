@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	identifiertypeid "github.com/faustbrian/golib/pkg/identifier/typeid"
+	identifiertypeid "github.com/faustbrian/go-identifier/typeid"
 )
 
 // The fixtures are copied byte-for-byte from jetify-com/typeid at the

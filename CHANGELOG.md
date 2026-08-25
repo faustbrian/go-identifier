@@ -4,12 +4,15 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+## 1.0.0 - 2026-08-25
+
 ### Documentation
 
 - Link the package README to the repository-wide Golib documentation portal.
 
 ### Changed
 
+- Publish the module from its standalone `github.com/faustbrian/go-identifier` identity while preserving its documented API and behavior.
 - Use the concurrency-safe default cryptographic entropy source directly for
   UUIDv4 generation while retaining serialization for caller-provided readers.
 - Escape line breaks in generic identifier assertion diagnostics so hostile

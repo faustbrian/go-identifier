@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
+	identifier "github.com/faustbrian/go-identifier"
 	segmentksuid "github.com/segmentio/ksuid"
 )
 

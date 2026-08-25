@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
+	identifier "github.com/faustbrian/go-identifier"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 

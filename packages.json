@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-identifier",
+  "packages": [
+    {
+      "module_directory": ".",
+      "directory": ".",
+      "name": "identifier",
+      "import_path": "github.com/faustbrian/go-identifier",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "idtest",
+      "name": "idtest",
+      "import_path": "github.com/faustbrian/go-identifier/idtest",
+      "kind": "test support",
+      "production": false,
+      "executable": true,
+      "coverage_required": false,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "ksuid",
+      "name": "ksuid",
+      "import_path": "github.com/faustbrian/go-identifier/ksuid",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "nanoid",
+      "name": "nanoid",
+      "import_path": "github.com/faustbrian/go-identifier/nanoid",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "slug",
+      "name": "slug",
+      "import_path": "github.com/faustbrian/go-identifier/slug",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "typeid",
+      "name": "typeid",
+      "import_path": "github.com/faustbrian/go-identifier/typeid",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "ulid",
+      "name": "ulid",
+      "import_path": "github.com/faustbrian/go-identifier/ulid",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "uuid",
+      "name": "uuid",
+      "import_path": "github.com/faustbrian/go-identifier/uuid",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    }
+  ]
+}

@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/golib/pkg/identifier"
-	identifierulid "github.com/faustbrian/golib/pkg/identifier/ulid"
+	identifier "github.com/faustbrian/go-identifier"
+	identifierulid "github.com/faustbrian/go-identifier/ulid"
 	oklogulid "github.com/oklog/ulid/v2"
 )
 
