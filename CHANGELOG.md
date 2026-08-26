@@ -4,6 +4,11 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+### Documentation
+
+- Replace archived monorepo and hardening terminology with package-owned
+  documentation and verification guidance.
+
 ## 1.0.0 - 2026-08-25
 
 ### Changed

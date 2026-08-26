@@ -61,7 +61,7 @@ selection remain application persistence concerns.
 
 - [Selection](docs/selection.md)
 - [Guarantees and leakage](docs/guarantees.md)
-- [Hardening evidence](docs/hardening.md)
+- [Verification](docs/verification.md)
 - [Serialization](docs/serialization.md)
 - [Database behavior](docs/database.md)
 - [Migration](docs/migration.md)
@@ -82,8 +82,3 @@ independently reproducible targets.
 ## License
 
 MIT. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
-
-## Ecosystem
-
-Use the [Golib documentation portal](https://github.com/faustbrian/golib/blob/main/docs/index.md)
-to choose companion packages, supported stacks, recipes, and operations guidance.

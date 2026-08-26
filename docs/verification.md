@@ -1,4 +1,4 @@
-# Hardening evidence
+# Verification
 
 The release gate treats the following suites as required evidence, not as
 claims inferred from statement coverage.

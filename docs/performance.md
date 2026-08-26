@@ -21,7 +21,7 @@ are separately fuzzed because early rejection paths are intentionally uneven.
 
 ## Reference run
 
-The hardening reference run used commit `721663a`, Go 1.26.5, darwin/arm64,
+The reference run used commit `721663a`, Go 1.26.5, darwin/arm64,
 an Apple M4 Max, and `BENCH_TIME=100ms make benchmark`. The raw command output
 is the release evidence; representative results from that run are below in
 nanoseconds per operation. They are observations, not regression thresholds.
