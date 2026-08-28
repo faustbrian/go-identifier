@@ -74,10 +74,10 @@ selection remain application persistence concerns.
 
 ## Development
 
-Run `make check` for every blocking local gate. `make check-all` additionally
-runs advisory NilAway. Fuzzing, race tests, mutation tests, API fingerprints,
-documentation links, security scans, and comparative benchmarks are
-independently reproducible targets.
+Install the `golib` version declared by `.golib.yaml`, then run
+`golib check --all`. Fuzzing, race tests, mutation tests, API baselines,
+documentation links, security scans, provenance checks, and comparative
+benchmarks are part of that repository contract.
 
 ## License
 

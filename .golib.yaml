@@ -1,0 +1,93 @@
+schema_version: 1
+tool_version: v1.0.3
+tool_checksums_sha256: a53eacea92f126ba3a871ab9a4cc0986512d1b7df03ba8cec8e7866d0db87112
+manifest:
+  modules: modules.json
+  packages: packages.json
+evidence:
+  root: ".verification"
+mutation:
+  root: ".verification/mutation"
+  imports:
+  - module: "."
+    archive: ".verification/mutation/bootstrap/root.zip"
+    ledger: ".verification/mutation/migration-ledger.json"
+api:
+  baselines:
+  - module: "."
+    mode: go-doc
+    path: api/baseline.txt
+    packages:
+    - "."
+    - ./uuid
+    - ./ulid
+    - ./typeid
+    - ./ksuid
+    - ./nanoid
+    - ./slug
+    - ./idtest
+operations:
+- module: "."
+  gate: test
+  steps:
+  - type: make
+    makefile: verification/package.mk
+    target: provenance
+    timeout: 20m
+  - type: go-test
+    packages: ["./..."]
+    run: 'SQL|Database|PostgreSQL|Serialization'
+    timeout: 20m
+- module: "."
+  gate: fuzz
+  steps:
+  - type: go-test
+    packages: ["."]
+    fuzz: '^FuzzUUIDParse$'
+    budget: 2s
+    timeout: 2m
+  - type: go-test
+    packages: ["."]
+    fuzz: '^FuzzULIDParse$'
+    budget: 2s
+    timeout: 2m
+  - type: go-test
+    packages: ["."]
+    fuzz: '^FuzzTypeIDParse$'
+    budget: 2s
+    timeout: 2m
+  - type: go-test
+    packages: ["."]
+    fuzz: '^FuzzKSUIDParse$'
+    budget: 2s
+    timeout: 2m
+  - type: go-test
+    packages: ["."]
+    fuzz: '^FuzzNanoIDParse$'
+    budget: 2s
+    timeout: 2m
+  - type: go-test
+    packages: ["."]
+    fuzz: '^FuzzBinaryAndJSONCodecs$'
+    budget: 2s
+    timeout: 2m
+  - type: go-test
+    packages: ["./slug"]
+    fuzz: '^FuzzLaravelEnglish$'
+    budget: 2s
+    timeout: 2m
+- module: "."
+  gate: docs
+  steps:
+  - type: go-test
+    packages: ["./..."]
+    run: '^Example'
+    timeout: 20m
+- module: "."
+  gate: benchmark
+  steps:
+  - type: go-test
+    packages: ["./..."]
+    benchmark: "."
+    budget: 100ms
+    timeout: 20m
