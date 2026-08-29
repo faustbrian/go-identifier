@@ -61,7 +61,7 @@ selection remain application persistence concerns.
 
 - [Selection](docs/selection.md)
 - [Guarantees and leakage](docs/guarantees.md)
-- [Hardening evidence](docs/hardening.md)
+- [Verification](docs/verification.md)
 - [Serialization](docs/serialization.md)
 - [Database behavior](docs/database.md)
 - [Migration](docs/migration.md)
@@ -74,16 +74,11 @@ selection remain application persistence concerns.
 
 ## Development
 
-Run `make check` for every blocking local gate. `make check-all` additionally
-runs advisory NilAway. Fuzzing, race tests, mutation tests, API fingerprints,
-documentation links, security scans, and comparative benchmarks are
-independently reproducible targets.
+Install the `golib` version declared by `.golib.yaml`, then run
+`golib check --all`. Fuzzing, race tests, mutation tests, API baselines,
+documentation links, security scans, provenance checks, and comparative
+benchmarks are part of that repository contract.
 
 ## License
 
 MIT. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
-
-## Ecosystem
-
-Use the [Golib documentation portal](https://github.com/faustbrian/golib/blob/main/docs/index.md)
-to choose companion packages, supported stacks, recipes, and operations guidance.

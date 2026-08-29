@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-identifier",
+  "module": ".",
+  "package": "nanoid",
+  "gate": "mutation",
+  "input_digest": "sha256:d032bcde2ef5a8ff9713048f1f6ef3e349cd1c4cb85da2f96054a95700f5c456",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:6863e46d09ea16a50c778366941486dbb5ca17b71968956b664a7a0e5287ff88",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.26.6",
+    "evidence_origin": "approved_legacy_checkpoint"
+  },
+  "completed_at": "2026-08-29T01:09:12.061886Z"
+}
