@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-08-30",
+  "review_interval_days": 30,
+  "authorities": [
+    {
+      "id": "rfc9562-source",
+      "kind": "specification",
+      "version": "RFC 9562",
+      "url": "https://www.rfc-editor.org/rfc/rfc9562.txt",
+      "sha256": "041870106b8701d9fa9261dcbc1679a6b7ab18cb179b37b69d7232431eac8042",
+      "specifications": ["RFC 9562 UUID"]
+    },
+    {
+      "id": "rfc9562-errata",
+      "kind": "errata",
+      "url": "https://errata.rfc-editor.org/rfc9562",
+      "sha256": "cf3c99ffae467635bf67c5aa82bdfc7fb150823deae6105304fe8c7cb4c90a6a",
+      "specifications": ["RFC 9562 UUID"]
+    },
+    {
+      "id": "ulid-spec-source",
+      "kind": "specification",
+      "version": "d0c7170df4517939e70129b4d6462cc162f2d5bf",
+      "url": "https://raw.githubusercontent.com/ulid/spec/d0c7170df4517939e70129b4d6462cc162f2d5bf/README.md",
+      "sha256": "1f6799a6c33e2f2561ab26dd98f67af966dc3953b84bb595f629089828a0e822",
+      "specifications": ["ULID specification at d0c7170df4517939e70129b4d6462cc162f2d5bf"]
+    },
+    {
+      "id": "ulid-spec-updates",
+      "kind": "releases",
+      "url": "https://github.com/ulid/spec/commits/master.atom",
+      "sha256": "8a93822c5ad7040772566b703cafb022617d7c52bd89241f55e0585f0f472434",
+      "specifications": ["ULID specification at d0c7170df4517939e70129b4d6462cc162f2d5bf"]
+    },
+    {
+      "id": "typeid-spec-source",
+      "kind": "specification",
+      "version": "0.3.0 at be8ff0daf5dc1f6d40c62a03cfc89945263a69af",
+      "url": "https://raw.githubusercontent.com/jetify-com/typeid/be8ff0daf5dc1f6d40c62a03cfc89945263a69af/spec/README.md",
+      "sha256": "c48f563a66b0e176874d1a6195032a4801ba72e572b90bcfefae08ce894081a8",
+      "specifications": ["TypeID specification 0.3.0 at be8ff0daf5dc1f6d40c62a03cfc89945263a69af"]
+    },
+    {
+      "id": "typeid-spec-updates",
+      "kind": "releases",
+      "url": "https://github.com/jetify-com/typeid/commits/main.atom",
+      "sha256": "b48e597eefcf5b23d2cc5b96a010bc74bac87237c45bef29e2619ae01276fc3f",
+      "specifications": ["TypeID specification 0.3.0 at be8ff0daf5dc1f6d40c62a03cfc89945263a69af"]
+    },
+    {
+      "id": "segment-ksuid-source",
+      "kind": "specification",
+      "version": "d33724947fcfba7949906c2b1821e96a1c8d06e7",
+      "url": "https://raw.githubusercontent.com/segmentio/ksuid/d33724947fcfba7949906c2b1821e96a1c8d06e7/README.md",
+      "sha256": "9a8d6bd72ff5d7b611b3e9469c28747485ea051c49bc37b0a09794b9b4e30103",
+      "specifications": ["Segment KSUID reference format at d33724947fcfba7949906c2b1821e96a1c8d06e7"]
+    },
+    {
+      "id": "segment-ksuid-updates",
+      "kind": "releases",
+      "url": "https://github.com/segmentio/ksuid/commits/master.atom",
+      "sha256": "ec727d12f527c9039470cc9408553fd64039fa88d55ebdd5b8a472f4867a2b99",
+      "specifications": ["Segment KSUID reference format at d33724947fcfba7949906c2b1821e96a1c8d06e7"]
+    },
+    {
+      "id": "nanoid-reference-source",
+      "kind": "specification",
+      "version": "07a39d62d84c21af5046fe6b2ef7b3e36ee557db",
+      "url": "https://raw.githubusercontent.com/ai/nanoid/07a39d62d84c21af5046fe6b2ef7b3e36ee557db/README.md",
+      "sha256": "98e9fc81fa79162706dcad33f12ade1778bc7edd5ba5884f925a59e060be4f37",
+      "specifications": ["Nano ID reference profile at 07a39d62d84c21af5046fe6b2ef7b3e36ee557db"]
+    },
+    {
+      "id": "nanoid-reference-updates",
+      "kind": "releases",
+      "url": "https://github.com/ai/nanoid/commits/main.atom",
+      "sha256": "c4100862408ac8b00b1da16eb92b33ab40a0deddcff4af380a459a3b99c429d3",
+      "specifications": ["Nano ID reference profile at 07a39d62d84c21af5046fe6b2ef7b3e36ee557db"]
+    },
+    {
+      "id": "laravel-slug-source",
+      "kind": "specification",
+      "version": "Laravel 13 at 138e5806ed7e4e21591948b661119d3810f052cf",
+      "url": "https://raw.githubusercontent.com/laravel/framework/138e5806ed7e4e21591948b661119d3810f052cf/src/Illuminate/Support/Str.php",
+      "sha256": "1993f1413bd9709360c04b266ee2d94d1a6a324561167bfa5986e06ae2a6c489",
+      "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
+    },
+    {
+      "id": "spatie-sluggable-source",
+      "kind": "extension",
+      "version": "4.0.2 at 82a69be1ef661ce2ff38242b271457ef0b9611dd",
+      "url": "https://raw.githubusercontent.com/spatie/laravel-sluggable/82a69be1ef661ce2ff38242b271457ef0b9611dd/src/SlugOptions.php",
+      "sha256": "2cb8e8ceba8a8a9a79f8fe282d32fab600a3ad95acdcc96c54b5d2b5c77d87ba",
+      "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
+    },
+    {
+      "id": "laravel-framework-updates",
+      "kind": "releases",
+      "url": "https://github.com/laravel/framework/commits/13.x.atom",
+      "sha256": "5b3a22a9fcc0cd1a21614c403cd309baacee697ae5044e06185e1b116b840d39",
+      "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
+    },
+    {
+      "id": "spatie-sluggable-updates",
+      "kind": "releases",
+      "url": "https://github.com/spatie/laravel-sluggable/commits/main.atom",
+      "sha256": "41352403882cb0b191dc7cfc9e8b5f3da6a38bf9b298728558a4b15d85c5f924",
+      "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
+    }
+  ]
+}

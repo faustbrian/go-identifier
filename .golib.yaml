@@ -28,6 +28,18 @@ api:
     - ./idtest
 operations:
 - module: "."
+  gate: conformance
+  steps:
+  - type: go-test
+    packages: ["./uuid", "./ulid", "./typeid", "./ksuid", "./nanoid", "./slug"]
+    count: 1
+    timeout: 20m
+  - type: go-test
+    packages: ["."]
+    run: '^TestPinnedCrossLanguageVectors$|^TestMaintainedImplementationInteroperability$|^TestEverySharedGeneratorHasAtomicUniqueStateTransitions$|^TestNanoIDRejectionSamplingHasNoModuloBias$'
+    count: 1
+    timeout: 20m
+- module: "."
   gate: test
   steps:
   - type: make

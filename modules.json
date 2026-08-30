@@ -150,16 +150,33 @@
       "build_tags": [],
       "test_tags": [],
       "interoperability_tools": [],
-      "specifications": [],
-      "conformance_corpora": [],
-      "provenance": [],
+      "specifications": [
+        "RFC 9562 UUID",
+        "ULID specification at d0c7170df4517939e70129b4d6462cc162f2d5bf",
+        "TypeID specification 0.3.0 at be8ff0daf5dc1f6d40c62a03cfc89945263a69af",
+        "Segment KSUID reference format at d33724947fcfba7949906c2b1821e96a1c8d06e7",
+        "Nano ID reference profile at 07a39d62d84c21af5046fe6b2ef7b3e36ee557db",
+        "Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"
+      ],
+      "conformance_corpora": [
+        "RFC 9562 UUID examples and maintained google/uuid v1.6.0 differential evidence",
+        "Pinned ULID, TypeID, KSUID, and Nano ID reference vectors",
+        "Complete TypeID 0.3.0 official valid and invalid corpora",
+        "Maintained oklog/ulid v2.1.1, Jetify TypeID v2.0.0-alpha.3, Segment KSUID v1.0.4, and matoous NanoID v2.1.0 peers",
+        "Frozen Laravel 13 and spatie/laravel-sluggable 4.0.2 English slug differential corpus"
+      ],
+      "provenance": [
+        "specification/manifest.tsv",
+        "specification/maintained-peers.json",
+        "specification/vector-provenance.tsv"
+      ],
       "goal_files": [],
       "goal_status": "not-applicable",
       "goal_evidence": [],
       "gates": {
         "api_compatibility": true,
         "benchmarks": true,
-        "conformance": false,
+        "conformance": true,
         "coverage": true,
         "documentation": true,
         "fuzz": true,

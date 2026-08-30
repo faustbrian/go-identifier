@@ -68,6 +68,7 @@ selection remain application persistence concerns.
 - [Security](docs/security.md)
 - [Performance](docs/performance.md)
 - [Compatibility](docs/compatibility.md)
+- [Specification decisions](docs/specification-decisions.md)
 - [API map](docs/api.md)
 - [Architecture](docs/architecture.md)
 - [FAQ](docs/faq.md)
