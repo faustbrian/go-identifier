@@ -6,14 +6,29 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
-- Adopt the versioned shared `golib` repository contract for local and hosted
-  verification while retaining package-owned API, provenance, and mutation
-  evidence.
+- Adopt the checksum-verified `go-library-tools` v1.2.0 CLI and immutable
+  shared workflow so local and hosted gates enforce specification governance
+  while retaining package-owned API, provenance, and mutation evidence.
+- Review Laravel 13.x updates through `f9c010aaca36398c9d88ffd4f2629da290bc0878`;
+  the frozen `Str::slug` profile and identifier behavior remain unchanged.
 
 ### Documentation
 
 - Replace archived monorepo and hardening terminology with package-owned
   documentation and verification guidance.
+
+- Declare and govern the externally specified UUID, ULID, TypeID, KSUID,
+  Nano ID, and frozen Laravel slug compatibility surface in the
+  [specification decision register](docs/specification-decisions.md):
+  - IDENTIFIER-UUID-DEC-001 sha256:a6465fa9bcb66362430458b9d8ef44c644841952dc316588418cc36444641e7a
+  - IDENTIFIER-UUID-DEC-002 sha256:10ff4097fed07721c5ec6dbc4d40a3e1b4d1e062d5373a7bf39c53e4f134c96e
+  - IDENTIFIER-ULID-DEC-001 sha256:b3a6091389aee2883827a1d3b9184fea4e1ba0d60a8fb1335be9349a0b964eab
+  - IDENTIFIER-ULID-DEC-002 sha256:9a8779c12a55915d18646c61a36fa769f024144449f72408ddcad82619ffc041
+  - IDENTIFIER-TYPEID-DEC-001 sha256:d0e25b9ecb97f70dffd054cd63f8f0c423c7b52672a7898b6440348c6294907c
+  - IDENTIFIER-TYPEID-DEC-002 sha256:0c7c9bfb75618c4ebceaa8facad48b9aa4d695d70270daa1dd3fe6b4d32bbd8e
+  - IDENTIFIER-KSUID-DEC-001 sha256:89ad85c83ce29b92eaa2e10d5889c329190ed8ac65b7e029610a47a06af270f9
+  - IDENTIFIER-NANOID-DEC-001 sha256:4262c4d507befaf8bb8ae13ed0abf153b0ff2dcc1f8fa11d0117e14929d4ac93
+  - IDENTIFIER-SLUG-DEC-001 sha256:8c3431d77c68c089e940105a76af959f3e99fe8aea9536a46e608aae94b6af8b
 
 ## 1.0.0 - 2026-08-25
 
