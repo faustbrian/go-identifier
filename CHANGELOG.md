@@ -6,9 +6,11 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
-- Adopt the versioned shared `golib` repository contract for local and hosted
-  verification while retaining package-owned API, provenance, and mutation
-  evidence.
+- Adopt the checksum-verified `go-library-tools` v1.2.0 CLI and immutable
+  shared workflow so local and hosted gates enforce specification governance
+  while retaining package-owned API, provenance, and mutation evidence.
+- Review Laravel 13.x updates through `f9c010aaca36398c9d88ffd4f2629da290bc0878`;
+  the frozen `Str::slug` profile and identifier behavior remain unchanged.
 
 ### Documentation
 

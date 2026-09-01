@@ -98,7 +98,7 @@
       "id": "laravel-framework-updates",
       "kind": "releases",
       "url": "https://github.com/laravel/framework/commits/13.x.atom",
-      "sha256": "5b3a22a9fcc0cd1a21614c403cd309baacee697ae5044e06185e1b116b840d39",
+      "sha256": "021b48f3ea3d844cf7eb2131dc602aa0559be94d1e6b4158328471053e9d24fe",
       "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
     },
     {
