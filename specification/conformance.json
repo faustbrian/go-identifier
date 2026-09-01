@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    {
+      "id": "IDENTIFIER-UUID-DEC-001",
+      "authoritative_sources": ["rfc9562-source"],
+      "executable_evidence": ["TestParseOfficialUUIDVectorsAndInspectTime", "TestParseRejectsNonCanonicalAndInvalidUUIDs", "TestMaintainedImplementationInteroperability"],
+      "fixtures": [],
+      "fuzz": ["FuzzUUIDParse"],
+      "differential_evidence": ["specification/maintained-peers.json"],
+      "differential_classification": "deliberate policy difference",
+      "public_behavior": ["UUID parsing requires one lowercase RFC text identity and defined RFC version and variant bits."]
+    },
+    {
+      "id": "IDENTIFIER-UUID-DEC-002",
+      "authoritative_sources": ["rfc9562-source"],
+      "executable_evidence": ["TestV4GenerationOwnsEntropyAndSetsRFCBits", "TestV7GenerationIsMonotonicAndRejectsClockRollback", "TestV7GenerationReportsEntropyAndMonotonicOverflow", "TestEverySharedGeneratorHasAtomicUniqueStateTransitions"],
+      "fixtures": [],
+      "fuzz": [],
+      "differential_evidence": ["specification/maintained-peers.json"],
+      "differential_classification": "deliberate policy difference",
+      "public_behavior": ["UUIDv4 uses RFC random generation while each UUIDv7 generator owns a monotonic random sequence and explicit rollback and exhaustion failures."]
+    },
+    {
+      "id": "IDENTIFIER-ULID-DEC-001",
+      "authoritative_sources": ["ulid-spec-source"],
+      "executable_evidence": ["TestOfficialVectorPreservesPostalCompatibleTextAndTime", "TestParserAcceptsLowercaseLaravelStorageAndRejectsMixedCase", "TestParserMatchesMaintainedULIDImplementation", "TestParseRejectsAmbiguousAndNonCanonicalText"],
+      "fixtures": [],
+      "fuzz": ["FuzzULIDParse"],
+      "differential_evidence": ["specification/maintained-peers.json"],
+      "differential_classification": "deliberate policy difference",
+      "public_behavior": ["ULID input may be consistently uppercase or lowercase but never mixed, and output case is selected explicitly."]
+    },
+    {
+      "id": "IDENTIFIER-ULID-DEC-002",
+      "authoritative_sources": ["ulid-spec-source"],
+      "executable_evidence": ["TestGeneratorIsMonotonicAndRejectsRollback", "TestGeneratorReportsEntropyAndOverflow", "TestGeneratorAcceptsTimestampAndCarryBoundaries", "TestEverySharedGeneratorHasAtomicUniqueStateTransitions"],
+      "fixtures": [],
+      "fuzz": [],
+      "differential_evidence": ["specification/maintained-peers.json"],
+      "differential_classification": "deliberate policy difference",
+      "public_behavior": ["Each ULID generator increments one random seed within a millisecond and fails atomically on rollback or exhaustion."]
+    },
+    {
+      "id": "IDENTIFIER-TYPEID-DEC-001",
+      "authoritative_sources": ["typeid-spec-source"],
+      "executable_evidence": ["TestOfficialValidCorpus", "TestOfficialInvalidCorpus", "TestOfficialZeroTypeIDSemantics", "TestPrefixAndSuffixValidation", "TestMaintainedImplementationInteroperability"],
+      "fixtures": ["typeid/testdata/official/valid.json", "typeid/testdata/official/invalid.json"],
+      "fuzz": ["FuzzTypeIDParse"],
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": ["TypeID parsing implements the complete strict 0.3.0 codec, including supplied non-v7 UUID payloads and the canonical all-zero value."]
+    },
+    {
+      "id": "IDENTIFIER-TYPEID-DEC-002",
+      "authoritative_sources": ["typeid-spec-source"],
+      "executable_evidence": ["TestGeneratorUsesOwnedUUIDv7Generator", "TestOfficialVectorsRoundTrip", "TestEverySharedGeneratorHasAtomicUniqueStateTransitions"],
+      "fixtures": ["typeid/testdata/official/valid.json"],
+      "fuzz": [],
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": ["Every newly generated TypeID uses the package UUIDv7 generator while imported suffixes use explicit conversion APIs."]
+    },
+    {
+      "id": "IDENTIFIER-KSUID-DEC-001",
+      "authoritative_sources": ["segment-ksuid-source"],
+      "executable_evidence": ["TestReferenceVectorAndDifferentialParsing", "TestParserRejectsMalformedAndNonCanonicalValues", "TestGeneratorIsMonotonicAndReportsFailures", "TestGeneratorAcceptsTimestampAndCarryBoundaries", "TestEverySharedGeneratorHasAtomicUniqueStateTransitions"],
+      "fixtures": [],
+      "fuzz": ["FuzzKSUIDParse"],
+      "differential_evidence": ["specification/maintained-peers.json"],
+      "differential_classification": "deliberate policy difference",
+      "public_behavior": ["KSUID parsing matches Segment's wire format while generation owns a same-second monotonic payload and rollback failure policy."]
+    },
+    {
+      "id": "IDENTIFIER-NANOID-DEC-001",
+      "authoritative_sources": ["nanoid-reference-source"],
+      "executable_evidence": ["TestDefaultGeneratorUsesUnbiasedOwnedEntropy", "TestConfigurationRejectsBiasAmbiguityAndLowEntropy", "TestConfigurationAndRejectionSamplingBoundaries", "TestNanoIDRejectionSamplingHasNoModuloBias", "TestMaintainedImplementationInteroperability"],
+      "fixtures": [],
+      "fuzz": ["FuzzNanoIDParse"],
+      "differential_evidence": ["specification/maintained-peers.json"],
+      "differential_classification": "deliberate policy difference",
+      "public_behavior": ["Nano ID retains the reference default and unbiased generation under a bounded printable-ASCII profile with at least 120 bits."]
+    },
+    {
+      "id": "IDENTIFIER-SLUG-DEC-001",
+      "authoritative_sources": ["laravel-slug-source", "spatie-sluggable-source"],
+      "executable_evidence": ["TestLaravelEnglishMatchesFrozenLaravelDifferentialVectors", "TestLaravelEnglishPreservesFrozenLaravelSlugOutputs", "TestLaravelEnglishTruncatesTheSourceBeforeTransliteration", "TestLaravelEnglishIsSafeForConcurrentUse"],
+      "fixtures": ["slug/testdata/laravel_english.json"],
+      "fuzz": ["FuzzLaravelEnglish"],
+      "differential_evidence": ["slug/testdata/laravel_english.json", "specification/maintained-peers.json"],
+      "differential_classification": "deliberate policy difference",
+      "public_behavior": ["LaravelEnglish reproduces the frozen Laravel and spatie English source-normalization profile but leaves persistence uniqueness and suffixing to callers."]
+    }
+  ]
+}

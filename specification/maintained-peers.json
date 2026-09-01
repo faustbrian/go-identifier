@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-08-30",
+  "peers": [
+    {
+      "id": "google-uuid",
+      "version": "v1.6.0",
+      "source": "https://raw.githubusercontent.com/google/uuid/v1.6.0/uuid.go",
+      "source_sha256": "0edec8e34c6b6fe0db31b71a29069a09ed832e3fd04ee0175916b58f2b60e5c1",
+      "observed_behavior": {
+        "codec": "Agrees on bytes and canonical output for RFC text but accepts additional text representations and case variants.",
+        "generation": "Provides UUIDv4 and UUIDv7 without the package's injected clock and per-generator rollback contract."
+      }
+    },
+    {
+      "id": "oklog-ulid",
+      "version": "v2.1.1",
+      "source": "https://raw.githubusercontent.com/oklog/ulid/v2.1.1/ulid.go",
+      "source_sha256": "220cfbb39d1cba40c5a587a9fc8c52688cb02bd49645ef8b044c17db455b9b80",
+      "observed_behavior": {
+        "codec": "Agrees on canonical valid ULID bytes and overflow rejection.",
+        "generation": "Exposes monotonic entropy while clock ownership and rollback classification remain caller policy."
+      }
+    },
+    {
+      "id": "jetify-typeid",
+      "version": "v2.0.0-alpha.3",
+      "source": "https://raw.githubusercontent.com/jetify-com/typeid-go/v2.0.0-alpha.3/typeid.go",
+      "source_sha256": "e375fecd30aeed221b6742a4903165b78e1ca70b20d5a03769cfbce84f7df47b",
+      "observed_behavior": {
+        "codec": "Agrees on canonical TypeID text and decoded bytes for the maintained vector and shared official corpus.",
+        "generation": "Generates UUIDv7-backed TypeIDs."
+      }
+    },
+    {
+      "id": "segment-ksuid",
+      "version": "v1.0.4",
+      "source": "https://raw.githubusercontent.com/segmentio/ksuid/v1.0.4/ksuid.go",
+      "source_sha256": "cd1c9c4aa19296ab278fb32509e500d966006bcdfca3b440d25bd6192733ca66",
+      "observed_behavior": {
+        "codec": "Defines the canonical 20-byte and 27-character format used by the package differential parser.",
+        "generation": "Uses independent random generation by default rather than the package's per-generator same-second increment policy."
+      }
+    },
+    {
+      "id": "matoous-nanoid",
+      "version": "v2.1.0",
+      "source": "https://raw.githubusercontent.com/matoous/go-nanoid/v2.1.0/gonanoid.go",
+      "source_sha256": "a0269f7e656bbbe6031aee619041dd3c4c022a6ff15461c3500ec290179a43f0",
+      "observed_behavior": {
+        "codec": "Generated custom-alphabet output is accepted by the package under the same explicit configuration.",
+        "generation": "Permits smaller and broader configurations than the package's 120-bit printable-ASCII defensive profile."
+      }
+    },
+    {
+      "id": "laravel-spatie-slug",
+      "version": "Laravel 13 at 138e5806ed7e4e21591948b661119d3810f052cf and spatie 4.0.2 at 82a69be1ef661ce2ff38242b271457ef0b9611dd",
+      "source": "https://raw.githubusercontent.com/laravel/framework/138e5806ed7e4e21591948b661119d3810f052cf/src/Illuminate/Support/Str.php",
+      "source_sha256": "1993f1413bd9709360c04b266ee2d94d1a6a324561167bfa5986e06ae2a6c489",
+      "options_source": "https://raw.githubusercontent.com/spatie/laravel-sluggable/82a69be1ef661ce2ff38242b271457ef0b9611dd/src/SlugOptions.php",
+      "options_source_sha256": "2cb8e8ceba8a8a9a79f8fe282d32fab600a3ad95acdcc96c54b5d2b5c77d87ba",
+      "observed_behavior": {
+        "normalization": "Laravel delegates English ASCII transliteration and normalizes case, separators, whitespace, and at-sign spelling.",
+        "profile": "Spatie defaults to English, hyphen separation, and a 250-character source maximum while uniqueness remains persistence-owned."
+      }
+    }
+  ],
+  "local_profile": {
+    "uuid": "Strict lowercase RFC text and per-generator UUIDv7 monotonic failure ownership.",
+    "ulid": "Consistent uppercase or lowercase input with explicit output case and rollback failure.",
+    "typeid": "Complete official 0.3.0 codec with UUIDv7-only generation.",
+    "ksuid": "Segment wire compatibility with per-generator same-second monotonic payloads.",
+    "nanoid": "Reference default with unbiased generation and a bounded 120-bit configuration floor.",
+    "slug": "Frozen Laravel and spatie English source normalization without persistence uniqueness or suffixing."
+  },
+  "classification": "deliberate policy difference"
+}

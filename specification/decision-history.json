@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {"id": "IDENTIFIER-UUID-DEC-001", "digests": ["a6465fa9bcb66362430458b9d8ef44c644841952dc316588418cc36444641e7a"]},
+    {"id": "IDENTIFIER-UUID-DEC-002", "digests": ["10ff4097fed07721c5ec6dbc4d40a3e1b4d1e062d5373a7bf39c53e4f134c96e"]},
+    {"id": "IDENTIFIER-ULID-DEC-001", "digests": ["b3a6091389aee2883827a1d3b9184fea4e1ba0d60a8fb1335be9349a0b964eab"]},
+    {"id": "IDENTIFIER-ULID-DEC-002", "digests": ["9a8779c12a55915d18646c61a36fa769f024144449f72408ddcad82619ffc041"]},
+    {"id": "IDENTIFIER-TYPEID-DEC-001", "digests": ["d0e25b9ecb97f70dffd054cd63f8f0c423c7b52672a7898b6440348c6294907c"]},
+    {"id": "IDENTIFIER-TYPEID-DEC-002", "digests": ["0c7c9bfb75618c4ebceaa8facad48b9aa4d695d70270daa1dd3fe6b4d32bbd8e"]},
+    {"id": "IDENTIFIER-KSUID-DEC-001", "digests": ["89ad85c83ce29b92eaa2e10d5889c329190ed8ac65b7e029610a47a06af270f9"]},
+    {"id": "IDENTIFIER-NANOID-DEC-001", "digests": ["4262c4d507befaf8bb8ae13ed0abf153b0ff2dcc1f8fa11d0117e14929d4ac93"]},
+    {"id": "IDENTIFIER-SLUG-DEC-001", "digests": ["8c3431d77c68c089e940105a76af959f3e99fe8aea9536a46e608aae94b6af8b"]}
+  ]
+}
