@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-identifier",
+  "module": ".",
+  "package": "typeid",
+  "gate": "mutation",
+  "input_digest": "sha256:cc5597e597022be10731bb3cc57434da2e9f89b1b686407b6d91f1d476184f9a",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:376430f7ddd5a5fc1412e9591624f25f971b415954a4271a87b95a46c11143ac",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.26.6",
+    "evidence_origin": "approved_legacy_checkpoint"
+  },
+  "completed_at": "2026-08-29T01:09:13.09653Z"
+}

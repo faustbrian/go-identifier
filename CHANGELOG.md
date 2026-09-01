@@ -4,6 +4,12 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+### Changed
+
+- Adopt the versioned shared `golib` repository contract for local and hosted
+  verification while retaining package-owned API, provenance, and mutation
+  evidence.
+
 ### Documentation
 
 - Replace archived monorepo and hardening terminology with package-owned

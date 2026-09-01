@@ -1,6 +1,7 @@
 # Performance
 
-Run `make benchmark BENCH_TIME=1s` on an idle pinned host. The suite reports
+Run `go test ./... -run '^$' -bench . -benchmem -benchtime=1s` on an idle
+pinned host. The suite reports
 allocations and compares maintained implementations: Google UUID, oklog ULID,
 Jetify TypeID, Segment KSUID, and matoous NanoID. Results are evidence for that
 machine and commit, not permanent API guarantees.
@@ -22,7 +23,8 @@ are separately fuzzed because early rejection paths are intentionally uneven.
 ## Reference run
 
 The reference run used commit `721663a`, Go 1.26.5, darwin/arm64,
-an Apple M4 Max, and `BENCH_TIME=100ms make benchmark`. The raw command output
+an Apple M4 Max, and `go test ./... -run '^$' -bench . -benchmem
+-benchtime=100ms`. The raw command output
 is the release evidence; representative results from that run are below in
 nanoseconds per operation. They are observations, not regression thresholds.
 

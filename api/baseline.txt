@@ -1,0 +1,635 @@
+package identifier // import "github.com/faustbrian/go-identifier"
+
+Package identifier defines contracts shared by concrete identifier families.
+
+VARIABLES
+
+var (
+	// ErrInvalid reports malformed, non-canonical, or disallowed input.
+	ErrInvalid = errors.New("invalid identifier")
+	// ErrEntropy reports failure while acquiring random bytes.
+	ErrEntropy = errors.New("identifier entropy failure")
+	// ErrClockRollback reports a clock moving behind supported generator state.
+	ErrClockRollback = errors.New("identifier clock rollback")
+	// ErrOverflow reports exhausted monotonic or sequence space.
+	ErrOverflow = errors.New("identifier sequence overflow")
+	// ErrUnsupported reports a valid but unsupported identifier feature.
+	ErrUnsupported = errors.New("unsupported identifier")
+)
+
+TYPES
+
+type Clock interface {
+	Now() time.Time
+}
+    Clock is an explicitly owned time source.
+
+type ClockFunc func() time.Time
+    ClockFunc adapts a function to Clock.
+
+func (clock ClockFunc) Now() time.Time
+    Now calls the underlying function.
+
+type Family string
+    Family identifies an encoding without implying equivalent guarantees.
+
+const (
+	// FamilyUUID identifies RFC UUID values.
+	FamilyUUID Family = "uuid"
+	// FamilyULID identifies canonical ULID values.
+	FamilyULID Family = "ulid"
+	// FamilyTypeID identifies TypeID values.
+	FamilyTypeID Family = "typeid"
+	// FamilyKSUID identifies Segment-compatible KSUID values.
+	FamilyKSUID Family = "ksuid"
+	// FamilyNanoID identifies configured NanoID values.
+	FamilyNanoID Family = "nanoid"
+)
+type Generator[T any] interface {
+	New() (T, error)
+}
+    Generator produces identifiers without relying on package-global mutable
+    state.
+
+type ID[Tag Validator] struct {
+	// Has unexported fields.
+}
+    ID is a strongly typed canonical identifier. Different Tag arguments are
+    distinct Go types and cannot be mixed without an explicit conversion.
+
+func Parse[Tag Validator](text string) (ID[Tag], error)
+    Parse validates canonical text for Tag.
+
+func (id ID[Tag]) Compare(other ID[Tag]) int
+    Compare returns -1, 0, or 1 according to canonical lexical ordering.
+
+func (id ID[Tag]) IsZero() bool
+    IsZero reports whether no identifier has been assigned.
+
+func (id ID[Tag]) LogValue() slog.Value
+    LogValue redacts the identifier from structured logs. Callers must opt in
+    explicitly with String when an identifier has been approved for logging.
+
+func (id ID[Tag]) MarshalBinary() ([]byte, error)
+    MarshalBinary uses canonical text so typed values remain family-neutral.
+
+func (id ID[Tag]) MarshalJSON() ([]byte, error)
+    MarshalJSON encodes the canonical identifier as a JSON string.
+
+func (id ID[Tag]) MarshalText() ([]byte, error)
+    MarshalText implements encoding.TextMarshaler.
+
+func (id *ID[Tag]) Scan(src any) error
+    Scan implements sql.Scanner for strings, byte slices, and NULL.
+
+func (id ID[Tag]) String() string
+    String returns canonical text.
+
+func (id *ID[Tag]) UnmarshalBinary(data []byte) error
+    UnmarshalBinary validates canonical text.
+
+func (id *ID[Tag]) UnmarshalJSON(data []byte) error
+    UnmarshalJSON decodes and validates a canonical JSON string.
+
+func (id *ID[Tag]) UnmarshalText(text []byte) error
+    UnmarshalText implements encoding.TextUnmarshaler.
+
+func (id ID[Tag]) Value() (driver.Value, error)
+    Value implements driver.Valuer. An unassigned ID is stored as SQL NULL.
+
+type Inspection struct {
+	Family    Family
+	Version   int
+	Timestamp time.Time
+	HasTime   bool
+	Sortable  bool
+}
+    Inspection exposes only properties actually defined by an identifier family.
+
+type Validator interface {
+	Validate(string) error
+}
+    Validator validates the canonical text used by a typed ID. Implementations
+    must be usable as their zero value so decoding never needs registration.
+
+package uuid // import "github.com/faustbrian/go-identifier/uuid"
+
+Package uuid implements canonical RFC 9562 UUID parsing and v4/v7 generation
+with explicitly owned entropy, clocks, and monotonic state.
+
+TYPES
+
+type ID [16]byte
+    ID is an immutable UUID value. Bytes returns a copy rather than an alias.
+
+func FromBytes(value [16]byte) (ID, error)
+    FromBytes validates a copied binary UUID value.
+
+func Parse(text string) (ID, error)
+    Parse accepts only canonical lowercase RFC 9562 text and versions 1 through
+    8 using the RFC variant.
+
+func (id ID) Bytes() [16]byte
+    Bytes returns a copy of the 16-byte UUID.
+
+func (id ID) Compare(other ID) int
+    Compare returns -1, 0, or 1 according to unsigned binary ordering.
+
+func (id ID) Inspect() identifier.Inspection
+    Inspect reports timestamps only for UUID versions that define them.
+
+func (id ID) IsZero() bool
+    IsZero reports whether no UUID has been assigned.
+
+func (id ID) LogValue() slog.Value
+    LogValue redacts the UUID from structured logs.
+
+func (id ID) MarshalBinary() ([]byte, error)
+    MarshalBinary returns a copied 16-byte representation.
+
+func (id ID) MarshalJSON() ([]byte, error)
+    MarshalJSON encodes a UUID as a JSON string or an unassigned value as null.
+
+func (id ID) MarshalText() ([]byte, error)
+    MarshalText implements encoding.TextMarshaler.
+
+func (id *ID) Scan(src any) error
+    Scan implements sql.Scanner for canonical text, raw bytes, and NULL.
+
+func (id *ID) ScanUUID(value pgtype.UUID) error
+    ScanUUID implements pgtype.UUIDScanner.
+
+func (id ID) String() string
+    String returns canonical lowercase text.
+
+func (id ID) UUIDValue() (pgtype.UUID, error)
+    UUIDValue implements pgtype.UUIDValuer.
+
+func (id *ID) UnmarshalBinary(data []byte) error
+    UnmarshalBinary validates a 16-byte representation.
+
+func (id *ID) UnmarshalJSON(data []byte) error
+    UnmarshalJSON decodes canonical UUID text and accepts null as unassigned.
+
+func (id *ID) UnmarshalText(text []byte) error
+    UnmarshalText implements encoding.TextUnmarshaler.
+
+func (id ID) Value() (driver.Value, error)
+    Value implements driver.Valuer using PostgreSQL-compatible canonical text.
+
+func (id ID) Version() int
+    Version returns the RFC version nibble.
+
+type V4Generator struct {
+	// Has unexported fields.
+}
+    V4Generator owns its entropy source. Caller-provided readers are serialized;
+    the concurrency-safe crypto/rand.Reader default is used directly.
+
+func NewV4Generator(entropy io.Reader) *V4Generator
+    NewV4Generator constructs a random UUID generator. A nil reader selects
+    crypto/rand.Reader for this generator instance.
+
+func (generator *V4Generator) New() (ID, error)
+    New generates a UUIDv4.
+
+type V7Generator struct {
+	// Has unexported fields.
+}
+    V7Generator owns a clock, entropy source, mutex, and monotonic state.
+
+func NewV7Generator(clock identifier.Clock, entropy io.Reader) *V7Generator
+    NewV7Generator constructs a monotonic UUIDv7 generator. Nil inputs select a
+    system clock and crypto/rand.Reader for this generator instance.
+
+func (generator *V7Generator) New() (ID, error)
+    New generates a UUIDv7. Same-millisecond calls increment the random field;
+    rollback and exhaustion are reported rather than hidden.
+
+package ulid // import "github.com/faustbrian/go-identifier/ulid"
+
+Package ulid implements canonical ULIDs with explicitly owned monotonic
+generation state compatible with existing 26-character ULID storage.
+
+TYPES
+
+type Generator struct {
+	// Has unexported fields.
+}
+    Generator owns its clock, entropy source, mutex, and monotonic state.
+
+func NewGenerator(clock identifier.Clock, entropy io.Reader) *Generator
+    NewGenerator constructs a monotonic ULID generator. Nil inputs select a
+    system clock and crypto/rand.Reader for this generator instance.
+
+func (generator *Generator) New() (ID, error)
+    New generates a ULID, incrementing entropy within a millisecond and
+    reporting clock rollback or entropy exhaustion.
+
+type ID struct {
+	// Has unexported fields.
+}
+    ID is an immutable ULID. The validity bit distinguishes an unassigned Go
+    zero value from the valid all-zero ULID.
+
+func FromBytes(value [16]byte) ID
+    FromBytes copies a valid 128-bit ULID representation.
+
+func Parse(text string) (ID, error)
+    Parse accepts a consistently uppercase or lowercase Crockford Base32 ULID.
+    Mixed-case text and ambiguous Crockford characters are rejected.
+
+func (id ID) Bytes() [16]byte
+    Bytes returns a copy of the binary representation.
+
+func (id ID) Compare(other ID) int
+    Compare returns -1, 0, or 1 according to ULID binary ordering.
+
+func (id ID) Inspect() identifier.Inspection
+    Inspect returns the millisecond timestamp exposed by the ULID.
+
+func (id ID) IsZero() bool
+    IsZero reports whether no ULID has been assigned.
+
+func (id ID) LogValue() slog.Value
+    LogValue redacts the ULID from structured logs.
+
+func (id ID) MarshalBinary() ([]byte, error)
+    MarshalBinary returns a copied 16-byte representation.
+
+func (id ID) MarshalJSON() ([]byte, error)
+    MarshalJSON encodes canonical text or null for an unassigned value.
+
+func (id ID) MarshalText() ([]byte, error)
+    MarshalText implements encoding.TextMarshaler.
+
+func (id *ID) Scan(src any) error
+    Scan implements sql.Scanner for text, raw bytes, and NULL.
+
+func (id ID) String() string
+    String returns canonical text, or an empty string for an unassigned value.
+
+func (id ID) StringLower() string
+    StringLower returns lowercase text for schemas whose established ULID
+    contract is lowercase, or an empty string for an unassigned value.
+
+func (id *ID) UnmarshalBinary(data []byte) error
+    UnmarshalBinary validates a 16-byte representation.
+
+func (id *ID) UnmarshalJSON(data []byte) error
+    UnmarshalJSON decodes canonical text and accepts null as unassigned.
+
+func (id *ID) UnmarshalText(text []byte) error
+    UnmarshalText implements encoding.TextUnmarshaler.
+
+func (id ID) Value() (driver.Value, error)
+    Value implements driver.Valuer using canonical text.
+
+package typeid // import "github.com/faustbrian/go-identifier/typeid"
+
+Package typeid implements the TypeID specification version 0.3.0 with canonical
+prefixes, strict Base32, and UUIDv7-backed generation.
+
+FUNCTIONS
+
+func ValidatePrefix(prefix string) error
+    ValidatePrefix enforces the TypeID 0.3.0 prefix grammar.
+
+
+TYPES
+
+type Generator struct {
+	// Has unexported fields.
+}
+    Generator owns a prefix and UUIDv7 generator.
+
+func NewGenerator(prefix string, generator *identifieruuid.V7Generator) (*Generator, error)
+    NewGenerator validates prefix and binds it to an owned UUIDv7 generator.
+
+func (generator *Generator) New() (ID, error)
+    New generates a UUIDv7-backed TypeID.
+
+type ID struct {
+	// Has unexported fields.
+}
+    ID is an immutable TypeID. Its Go zero value is the official unprefixed
+    all-zero TypeID; the validity bit preserves every other prefix/value pair.
+
+func FromBytes(prefix string, value [16]byte) (ID, error)
+    FromBytes encodes any 128-bit value as permitted by the TypeID parser.
+
+func FromUUID[T UUIDSource](prefix string, value T) (ID, error)
+    FromUUID encodes any 128-bit UUID value with a validated prefix. String
+    input permits the non-RFC versions and variants required by the TypeID spec.
+
+func Parse(text string) (ID, error)
+    Parse accepts only canonical TypeID 0.3.0 text. Parsing permits every
+    128-bit suffix required by the official vectors; generation remains UUIDv7.
+
+func (id ID) Bytes() [16]byte
+    Bytes returns a copy of the 128-bit suffix value.
+
+func (id ID) Compare(other ID) int
+    Compare orders prefixes lexically and suffixes by unsigned bytes.
+
+func (id ID) Inspect() identifier.Inspection
+    Inspect reports the suffix version and UUIDv7 timestamp when present.
+
+func (id ID) IsZero() bool
+    IsZero reports whether the ID is the unprefixed all-zero TypeID.
+
+func (id ID) LogValue() slog.Value
+    LogValue redacts the TypeID from structured logs.
+
+func (id ID) MarshalBinary() ([]byte, error)
+    MarshalBinary encodes canonical text because the prefix is part of a TypeID.
+
+func (id ID) MarshalJSON() ([]byte, error)
+    MarshalJSON encodes canonical text, including the canonical zero TypeID.
+
+func (id ID) MarshalText() ([]byte, error)
+    MarshalText implements encoding.TextMarshaler.
+
+func (id ID) Prefix() string
+    Prefix returns the validated type prefix.
+
+func (id *ID) Scan(src any) error
+    Scan implements sql.Scanner for text and NULL.
+
+func (id ID) String() string
+    String returns canonical lowercase text, including the canonical zero ID.
+
+func (id *ID) UnmarshalBinary(data []byte) error
+    UnmarshalBinary validates canonical text.
+
+func (id *ID) UnmarshalJSON(data []byte) error
+    UnmarshalJSON decodes canonical text and accepts null as the zero TypeID.
+
+func (id *ID) UnmarshalText(text []byte) error
+    UnmarshalText implements encoding.TextUnmarshaler.
+
+func (id ID) Value() (driver.Value, error)
+    Value implements driver.Valuer using canonical text.
+
+type UUIDSource interface {
+	string | identifieruuid.ID
+}
+    UUIDSource is a canonical UUID string or a validated identifier UUID.
+
+package ksuid // import "github.com/faustbrian/go-identifier/ksuid"
+
+Package ksuid implements canonical, interoperable KSUIDs with explicitly owned
+clock, entropy, and optional same-second monotonic state.
+
+TYPES
+
+type Generator struct {
+	// Has unexported fields.
+}
+    Generator owns a clock, entropy source, mutex, and monotonic state. Within a
+    second, it increments the initial random payload; this leaks local issuance
+    order and differs from independent-random KSUID generation while preserving
+    wire interoperability.
+
+func NewGenerator(clock identifier.Clock, entropy io.Reader) *Generator
+    NewGenerator creates a monotonic KSUID generator. Nil inputs select a system
+    clock and crypto/rand.Reader for this generator instance.
+
+func (generator *Generator) New() (ID, error)
+    New generates a KSUID and reports rollback or payload exhaustion.
+
+type ID struct {
+	// Has unexported fields.
+}
+    ID is an immutable KSUID. A validity bit distinguishes an unassigned value
+    from the valid all-zero KSUID.
+
+func FromBytes(value [20]byte) ID
+    FromBytes copies a 20-byte KSUID representation.
+
+func Parse(text string) (ID, error)
+    Parse accepts exactly the canonical 27-character Base62 representation.
+
+func (id ID) Bytes() [20]byte
+    Bytes returns a copy of the KSUID representation.
+
+func (id ID) Compare(other ID) int
+    Compare returns -1, 0, or 1 according to binary ordering.
+
+func (id ID) Inspect() identifier.Inspection
+    Inspect returns the second-resolution timestamp exposed by a KSUID.
+
+func (id ID) IsZero() bool
+    IsZero reports whether no KSUID has been assigned.
+
+func (id ID) LogValue() slog.Value
+    LogValue redacts the KSUID from structured logs.
+
+func (id ID) MarshalBinary() ([]byte, error)
+    MarshalBinary returns a copied 20-byte representation.
+
+func (id ID) MarshalJSON() ([]byte, error)
+    MarshalJSON encodes canonical text or null when unassigned.
+
+func (id ID) MarshalText() ([]byte, error)
+    MarshalText implements encoding.TextMarshaler.
+
+func (id *ID) Scan(src any) error
+    Scan implements sql.Scanner for text, binary bytes, and NULL.
+
+func (id ID) String() string
+    String returns canonical Base62 text, or empty text when unassigned.
+
+func (id *ID) UnmarshalBinary(data []byte) error
+    UnmarshalBinary validates a 20-byte representation.
+
+func (id *ID) UnmarshalJSON(data []byte) error
+    UnmarshalJSON decodes canonical text and accepts null as unassigned.
+
+func (id *ID) UnmarshalText(text []byte) error
+    UnmarshalText implements encoding.TextUnmarshaler.
+
+func (id ID) Value() (driver.Value, error)
+    Value implements driver.Valuer using canonical text.
+
+package nanoid // import "github.com/faustbrian/go-identifier/nanoid"
+
+Package nanoid implements compact random identifiers with configurable,
+bias-free ASCII alphabets and a mandatory 120-bit entropy floor.
+
+CONSTANTS
+
+const (
+	// DefaultAlphabet is the URL-safe alphabet used by the reference NanoID.
+	DefaultAlphabet = "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	// DefaultSize is the reference NanoID length.
+	DefaultSize = 21
+	// MinimumEntropyBits prevents configurations below the package's security
+	// floor. NanoIDs remain identifiers, not secrets or authorization evidence.
+	MinimumEntropyBits = 120
+)
+
+TYPES
+
+type Config struct {
+	Alphabet string
+	Size     int
+}
+    Config defines one unambiguous byte alphabet and fixed identifier length.
+
+func DefaultConfig() Config
+    DefaultConfig returns the 21-character URL-safe NanoID configuration.
+
+func (config Config) Validate() error
+    Validate rejects alphabets that could bias or ambiguously encode output and
+    configurations below 120 bits of ideal entropy.
+
+type Generator struct {
+	// Has unexported fields.
+}
+    Generator owns a validated configuration, entropy source, and reader lock.
+
+func NewGenerator(config Config, entropy io.Reader) (*Generator, error)
+    NewGenerator constructs a bias-free NanoID generator. A nil reader selects
+    crypto/rand.Reader for this generator instance.
+
+func (generator *Generator) New() (ID, error)
+    New uses rejection sampling so every alphabet position has equal
+    probability.
+
+type ID struct {
+	// Has unexported fields.
+}
+    ID is an immutable NanoID carrying the configuration required to validate
+    subsequent decoding. Its zero value decodes with DefaultConfig.
+
+func Parse(text string) (ID, error)
+    Parse validates a default NanoID.
+
+func ParseWithConfig(text string, config Config) (ID, error)
+    ParseWithConfig validates text against an explicit alphabet and length.
+
+func Prepare(config Config) (ID, error)
+    Prepare returns an unassigned decoding target for a custom configuration.
+
+func (id ID) Compare(other ID) int
+    Compare returns lexical ordering. NanoID generation itself is not sortable.
+
+func (id ID) Config() Config
+    Config returns the validation configuration carried by an ID.
+
+func (id ID) Inspect() identifier.Inspection
+    Inspect reports that NanoIDs define neither time nor sortable generation.
+
+func (id ID) IsZero() bool
+    IsZero reports whether no NanoID has been assigned.
+
+func (id ID) LogValue() slog.Value
+    LogValue redacts the NanoID from structured logs.
+
+func (id ID) MarshalBinary() ([]byte, error)
+    MarshalBinary returns NanoID text bytes.
+
+func (id ID) MarshalJSON() ([]byte, error)
+    MarshalJSON encodes a NanoID string or null when unassigned.
+
+func (id ID) MarshalText() ([]byte, error)
+    MarshalText implements encoding.TextMarshaler.
+
+func (id *ID) Scan(src any) error
+    Scan implements sql.Scanner for text and NULL.
+
+func (id ID) String() string
+    String returns the NanoID text.
+
+func (id *ID) UnmarshalBinary(data []byte) error
+    UnmarshalBinary validates NanoID text bytes.
+
+func (id *ID) UnmarshalJSON(data []byte) error
+    UnmarshalJSON validates a string and accepts null as unassigned while
+    retaining a prepared custom configuration.
+
+func (id *ID) UnmarshalText(text []byte) error
+    UnmarshalText validates using the prepared configuration or DefaultConfig.
+
+func (id ID) Value() (driver.Value, error)
+    Value implements driver.Valuer using identifier text.
+
+package slug // import "github.com/faustbrian/go-identifier/slug"
+
+Package slug provides deterministic compatibility profiles for identifiers
+derived from human-readable text.
+
+Slugs are public lookup identifiers, not authorization facts or secrets.
+
+CONSTANTS
+
+const MaxSourceRunes = 250
+    MaxSourceRunes is the Laravel-compatible source limit applied before
+    transliteration.
+
+
+FUNCTIONS
+
+func LaravelEnglish(source string) string
+    LaravelEnglish reproduces Laravel 13 Str::slug source normalization with the
+    default English profile used by spatie/laravel-sluggable 4.0.2.
+
+    The function is deterministic and safe for concurrent use. It may return an
+    empty string when the source has no supported letters or digits. Database
+    uniqueness and numeric suffix selection remain persistence concerns.
+
+package idtest // import "github.com/faustbrian/go-identifier/idtest"
+
+Package idtest provides deterministic clocks, entropy, and reusable identifier
+assertions. Its sources are for tests and must not be used for production
+identifier generation.
+
+FUNCTIONS
+
+func AssertCanonical[T stringValue](t testing.TB, value T, parse func(string) (T, error))
+    AssertCanonical proves formatting parses back to the identical value.
+
+func AssertStrictlyOrdered[T any](t testing.TB, values []T, compare func(T, T) int)
+    AssertStrictlyOrdered proves each adjacent value is greater than its
+    predecessor under compare.
+
+func AssertUnique[T comparable](t testing.TB, generator identifier.Generator[T], count int) []T
+    AssertUnique generates count values, fails on errors or collisions,
+    and returns the generated sequence for additional assertions.
+
+func ErrorReader(err error) io.Reader
+    ErrorReader returns an entropy source that always reports err.
+
+
+TYPES
+
+type Clock struct {
+	// Has unexported fields.
+}
+    Clock is a mutex-protected deterministic clock.
+
+func NewClock(now time.Time) *Clock
+    NewClock starts a deterministic clock at an explicit instant.
+
+func (clock *Clock) Advance(duration time.Duration)
+    Advance moves the controlled instant by a duration, including backwards for
+    rollback tests.
+
+func (clock *Clock) Now() time.Time
+    Now returns the controlled instant.
+
+func (clock *Clock) Set(now time.Time)
+    Set replaces the controlled instant.
+
+type Reader struct {
+	// Has unexported fields.
+}
+    Reader expands a seed and counter with SHA-256 for reproducible test bytes.
+    It is deterministic, not a cryptographic entropy source.
+
+func NewReader(seed []byte) *Reader
+    NewReader copies a deterministic seed.
+
+func (reader *Reader) Read(output []byte) (int, error)
+    Read fills output deterministically and never returns a short read.
