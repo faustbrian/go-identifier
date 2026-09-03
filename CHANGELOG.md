@@ -6,6 +6,10 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
+- Adopt the checksum-verified `go-library-tools` v1.4.0 CLI and immutable
+  reusable workflow so local and hosted cohesion and specification checks use
+  the final monitored-authority contract.
+
 - Record the reviewed Nano ID reference clarification as behavior-neutral for
   the package's stricter bounded custom-alphabet profile while retaining the
   pinned source and public behavior.
@@ -27,7 +31,7 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Documentation
 
-- Link identifier selection and adoption guidance to the immutable v1.3.0
+- Link identifier selection and adoption guidance to the immutable v1.4.0
   ecosystem index and Foundations family.
 - Replace archived monorepo and hardening terminology with package-owned
   documentation and verification guidance.
