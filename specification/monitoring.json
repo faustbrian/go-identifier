@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-08-30",
+  "reviewed_at": "2026-09-03",
   "review_interval_days": 30,
   "authorities": [
     {
@@ -75,7 +75,7 @@
       "id": "nanoid-reference-updates",
       "kind": "releases",
       "url": "https://github.com/ai/nanoid/commits/main.atom",
-      "sha256": "c4100862408ac8b00b1da16eb92b33ab40a0deddcff4af380a459a3b99c429d3",
+      "sha256": "04181577ec5e0ac803ea289c7a750017da1fcabbd4af77ed2a1cd88f4a760808",
       "specifications": ["Nano ID reference profile at 07a39d62d84c21af5046fe6b2ef7b3e36ee557db"]
     },
     {
@@ -98,7 +98,7 @@
       "id": "laravel-framework-updates",
       "kind": "releases",
       "url": "https://github.com/laravel/framework/commits/13.x.atom",
-      "sha256": "021b48f3ea3d844cf7eb2131dc602aa0559be94d1e6b4158328471053e9d24fe",
+      "sha256": "73a48d124a01570fc61e8bb936563c8b9793ee0ca9c5bb2c8ea0800edfe67317",
       "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
     },
     {

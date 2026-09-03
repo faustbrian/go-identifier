@@ -299,7 +299,7 @@
       "interoperability_evidence": ["specification/maintained-peers.json"],
       "public_apis": ["`nanoid.Config`", "`nanoid.DefaultConfig`", "`nanoid.Parse`", "`nanoid.ParseWithConfig`", "`nanoid.Prepare`", "`nanoid.NewGenerator`"],
       "documentation": ["docs/compatibility.md", "docs/guarantees.md", "docs/security.md", "docs/specification-decisions.md"],
-      "upstream_status": "The pinned Nano ID project documents the default profile and uniformity algorithm but intentionally leaves application security floors to consumers.",
+      "upstream_status": "The pinned Nano ID project documents the default profile and uniformity algorithm but intentionally leaves application security floors to consumers. The reviewed upstream range `07a39d62d84c21af5046fe6b2ef7b3e36ee557db...8588e3a0db022b3876a4724e25cce4961e2a47a4` clarifies that custom alphabets contain 1 through 256 symbols and warns that values outside those bounds can loop forever; this is behavior-neutral for the package's stricter bounded profile.",
       "reconsider_when": "The Nano ID reference profile changes its default alphabet, length, or uniformity algorithm, or a separately versioned compatibility profile is added."
     },
     {
@@ -336,7 +336,7 @@
       "interoperability_evidence": ["slug/testdata/laravel_english.json", "specification/maintained-peers.json"],
       "public_apis": ["`slug.LaravelEnglish`", "`slug.MaxSourceRunes`"],
       "documentation": ["README.md", "docs/migration.md", "docs/specification-decisions.md"],
-      "upstream_status": "The profile is intentionally frozen to reviewed Laravel, spatie, and portable-ascii revisions; no upstream standardization claim is made.",
+      "upstream_status": "The profile is intentionally frozen to reviewed Laravel, spatie, and portable-ascii revisions; no upstream standardization claim is made. The reviewed Laravel 13.x range `f9c010aaca36398c9d88ffd4f2629da290bc0878...5ba4bc549544a1bbe7dfff45094a2a0befeff3fc` changes 47 files outside the pinned `Str.php` source and is behavior-neutral for the frozen English slug profile.",
       "reconsider_when": "An adopted Laravel or spatie upgrade intentionally changes existing slug output, source length, language, separator, or uniqueness ownership."
     }
   ]
