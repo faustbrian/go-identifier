@@ -15,6 +15,33 @@ revisions. [`monitoring.json`](monitoring.json) requires source and upstream
 update review every 30 days. [`maintained-peers.json`](maintained-peers.json) records
 observed peer behavior without treating popularity as normative authority.
 
+## Upstream review history
+
+### 2026-09-03
+
+- `nanoid-reference-updates` advanced from SHA-256
+  `c4100862408ac8b00b1da16eb92b33ab40a0deddcff4af380a459a3b99c429d3`
+  to
+  `04181577ec5e0ac803ea289c7a750017da1fcabbd4af77ed2a1cd88f4a760808`.
+  The reviewed upstream range
+  `07a39d62d84c21af5046fe6b2ef7b3e36ee557db...8588e3a0db022b3876a4724e25cce4961e2a47a4`
+  only clarifies that custom alphabets contain 1 through 256 symbols and that
+  values outside those bounds can loop forever. This intersects only the Nano
+  ID decision mapped below and is behavior-neutral: the package already
+  enforces a stricter 2 through 94 unique printable-ASCII alphabet, its 120-bit
+  entropy floor, and bounded rejection sampling. The pinned source, selected
+  behavior, public API, compatibility, and wire contract remain unchanged.
+- `laravel-framework-updates` advanced from SHA-256
+  `021b48f3ea3d844cf7eb2131dc602aa0559be94d1e6b4158328471053e9d24fe`
+  to
+  `73a48d124a01570fc61e8bb936563c8b9793ee0ca9c5bb2c8ea0800edfe67317`.
+  The reviewed Laravel 13.x range
+  `f9c010aaca36398c9d88ffd4f2629da290bc0878...5ba4bc549544a1bbe7dfff45094a2a0befeff3fc`
+  changes 47 files outside `src/Illuminate/Support/Str.php`. The frozen English
+  slug decision mapped below is therefore behavior-neutral; its source pin,
+  selected normalization, public API, compatibility, and wire contract remain
+  unchanged.
+
 ## Decision conformance
 
 | Decision | Authority | Executable evidence | Differential result |

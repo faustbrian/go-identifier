@@ -6,6 +6,14 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
+- Record the reviewed Nano ID reference clarification as behavior-neutral for
+  the package's stricter bounded custom-alphabet profile while retaining the
+  pinned source and public behavior.
+  - IDENTIFIER-NANOID-DEC-001 sha256:1f0f06dfcfbed64c8990b10494c5932db444aa5900c1427f2653dcf98e1015eb
+- Review Laravel 13.x updates through `5ba4bc549544a1bbe7dfff45094a2a0befeff3fc`;
+  the pinned `Str.php` source and frozen English slug behavior remain unchanged.
+  - IDENTIFIER-SLUG-DEC-001 sha256:1643f5b39e02cd8bde30ee3a42533e739317ffc44ae734019bc81789186cd358
+
 - Adopt the checksum-verified `go-library-tools` v1.3.0 CLI, schema-v2 cohesion
   metadata, and repository-local cohesion gate while retaining the module's
   public API and runtime behavior.

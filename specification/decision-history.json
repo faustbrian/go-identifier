@@ -8,7 +8,7 @@
     {"id": "IDENTIFIER-TYPEID-DEC-001", "digests": ["d0e25b9ecb97f70dffd054cd63f8f0c423c7b52672a7898b6440348c6294907c"]},
     {"id": "IDENTIFIER-TYPEID-DEC-002", "digests": ["0c7c9bfb75618c4ebceaa8facad48b9aa4d695d70270daa1dd3fe6b4d32bbd8e"]},
     {"id": "IDENTIFIER-KSUID-DEC-001", "digests": ["89ad85c83ce29b92eaa2e10d5889c329190ed8ac65b7e029610a47a06af270f9"]},
-    {"id": "IDENTIFIER-NANOID-DEC-001", "digests": ["4262c4d507befaf8bb8ae13ed0abf153b0ff2dcc1f8fa11d0117e14929d4ac93"]},
-    {"id": "IDENTIFIER-SLUG-DEC-001", "digests": ["8c3431d77c68c089e940105a76af959f3e99fe8aea9536a46e608aae94b6af8b"]}
+    {"id": "IDENTIFIER-NANOID-DEC-001", "digests": ["4262c4d507befaf8bb8ae13ed0abf153b0ff2dcc1f8fa11d0117e14929d4ac93", "1f0f06dfcfbed64c8990b10494c5932db444aa5900c1427f2653dcf98e1015eb"]},
+    {"id": "IDENTIFIER-SLUG-DEC-001", "digests": ["8c3431d77c68c089e940105a76af959f3e99fe8aea9536a46e608aae94b6af8b", "1643f5b39e02cd8bde30ee3a42533e739317ffc44ae734019bc81789186cd358"]}
   ]
 }
