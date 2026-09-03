@@ -74,16 +74,17 @@ selection remain application persistence concerns.
 - [FAQ](docs/faq.md)
 
 For neighboring packages and composition guidance, see the versioned
-[Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md)
+[Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md)
 and its
-[Foundations family](https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/design-language.md#package-families-and-selection).
+[Foundations family](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/design-language.md#package-families-and-selection).
 
 ## Development
 
-Install the `golib` version declared by `.golib.yaml`, then run
-`golib check --all`. Fuzzing, race tests, mutation tests, API baselines,
-documentation links, security scans, provenance checks, and comparative
-benchmarks are part of that repository contract.
+Install the `golib` version declared by `.golib.yaml`, then run `make ci`.
+That target includes repository, cohesion, online specification, and module
+checks. Fuzzing, race tests, mutation tests, API baselines, documentation
+links, security scans, provenance checks, and comparative benchmarks are part
+of that repository contract.
 
 Run `make cohesion` to validate the repository's design-language metadata and
 versioned ecosystem navigation.
