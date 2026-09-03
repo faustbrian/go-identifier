@@ -4,7 +4,7 @@ go 1.26.6
 
 require github.com/jackc/pgx/v5 v5.10.0
 
-require github.com/oklog/ulid/v2 v2.1.1
+require github.com/oklog/ulid/v2 v2.1.2
 
 require github.com/segmentio/ksuid v1.0.4
 
