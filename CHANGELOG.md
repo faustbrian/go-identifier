@@ -6,6 +6,11 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
+- Adopt the checksum-verified `go-library-tools` v1.3.0 CLI, schema-v2 cohesion
+  metadata, and repository-local cohesion gate while retaining the module's
+  public API and runtime behavior.
+- Pin reusable CI to the immutable v1.3.0 cohesion workflow so hosted checks
+  enforce the same metadata contract as local development.
 - Adopt the checksum-verified `go-library-tools` v1.2.0 CLI and immutable
   shared workflow so local and hosted gates enforce specification governance
   while retaining package-owned API, provenance, and mutation evidence.
@@ -14,6 +19,8 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Documentation
 
+- Link identifier selection and adoption guidance to the immutable v1.3.0
+  ecosystem index and Foundations family.
 - Replace archived monorepo and hardening terminology with package-owned
   documentation and verification guidance.
 
