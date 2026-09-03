@@ -41,6 +41,19 @@ observed peer behavior without treating popularity as normative authority.
   slug decision mapped below is therefore behavior-neutral; its source pin,
   selected normalization, public API, compatibility, and wire contract remain
   unchanged.
+- `laravel-framework-updates` advanced again from SHA-256
+  `73a48d124a01570fc61e8bb936563c8b9793ee0ca9c5bb2c8ea0800edfe67317`
+  to
+  `0786f3a3a049ea729e48d87c01ac54c48fde29a49f09d4478b2f951e5c027fb5`.
+  The additional reviewed Laravel 13.x range
+  `5ba4bc549544a1bbe7dfff45094a2a0befeff3fc...402ab340f895525709c1037d5ba52d926865a7ca`
+  contains six commits affecting test fixtures, generic types, style, facade
+  docblocks, mail and notification test fakes, and exception handling. The
+  production changes are limited to collection, exception-bootstrap, facade,
+  test-fake, tap, helper, and type-annotation files; none modifies
+  `src/Illuminate/Support/Str.php`. The frozen English slug source pin,
+  selected normalization, public API, compatibility, and wire contract
+  therefore remain unchanged.
 
 ## Decision conformance
 

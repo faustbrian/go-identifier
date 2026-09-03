@@ -336,7 +336,7 @@
       "interoperability_evidence": ["slug/testdata/laravel_english.json", "specification/maintained-peers.json"],
       "public_apis": ["`slug.LaravelEnglish`", "`slug.MaxSourceRunes`"],
       "documentation": ["README.md", "docs/migration.md", "docs/specification-decisions.md"],
-      "upstream_status": "The profile is intentionally frozen to reviewed Laravel, spatie, and portable-ascii revisions; no upstream standardization claim is made. The reviewed Laravel 13.x range `f9c010aaca36398c9d88ffd4f2629da290bc0878...5ba4bc549544a1bbe7dfff45094a2a0befeff3fc` changes 47 files outside the pinned `Str.php` source and is behavior-neutral for the frozen English slug profile.",
+      "upstream_status": "The profile is intentionally frozen to reviewed Laravel, spatie, and portable-ascii revisions; no upstream standardization claim is made. The reviewed Laravel 13.x range `f9c010aaca36398c9d88ffd4f2629da290bc0878...5ba4bc549544a1bbe7dfff45094a2a0befeff3fc` changes 47 files outside the pinned `Str.php` source and is behavior-neutral for the frozen English slug profile. The additional reviewed range `5ba4bc549544a1bbe7dfff45094a2a0befeff3fc...402ab340f895525709c1037d5ba52d926865a7ca` contains six test-fixture, generic-type, style, facade-docblock, test-fake, and exception-handling commits and leaves `src/Illuminate/Support/Str.php` untouched, so the frozen profile remains unchanged.",
       "reconsider_when": "An adopted Laravel or spatie upgrade intentionally changes existing slug output, source length, language, separator, or uniqueness ownership."
     }
   ]

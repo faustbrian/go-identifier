@@ -9,6 +9,11 @@ All notable changes follow Keep a Changelog and semantic versioning.
 - Adopt the checksum-verified `go-library-tools` v1.4.0 CLI and immutable
   reusable workflow so local and hosted cohesion and specification checks use
   the final monitored-authority contract.
+- Review additional Laravel 13.x test-fixture, generic-type, style, facade,
+  test-fake, and exception-handling updates through
+  `402ab340f895525709c1037d5ba52d926865a7ca`; the pinned `Str.php` source and
+  frozen English slug behavior remain unchanged.
+  - IDENTIFIER-SLUG-DEC-001 sha256:198d1a7a4f7ab6590953ef75a10609b53b81a4eae4575e4bcf2015cc0a88cafd
 
 - Record the reviewed Nano ID reference clarification as behavior-neutral for
   the package's stricter bounded custom-alphabet profile while retaining the
