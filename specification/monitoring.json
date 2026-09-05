@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-09-03",
+  "reviewed_at": "2026-09-05",
   "review_interval_days": 30,
   "authorities": [
     {
@@ -98,7 +98,7 @@
       "id": "laravel-framework-updates",
       "kind": "releases",
       "url": "https://github.com/laravel/framework/commits/13.x.atom",
-      "sha256": "0786f3a3a049ea729e48d87c01ac54c48fde29a49f09d4478b2f951e5c027fb5",
+      "sha256": "9ec8486ac832ed7cd2ef2f767bac5119bd7d2d681baa721a3c4229790e03cc2b",
       "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
     },
     {

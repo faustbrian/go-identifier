@@ -6,6 +6,11 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
+- Review Laravel 13.x Cloud queue, concurrency context, JSON:API stub, and HTTP
+  client callback-lifetime updates through
+  `cdbd17f7e3257e8ae4207d3c3bef6058452d5f72`; the frozen `Str.php` source and
+  English slug behavior remain unchanged.
+  - IDENTIFIER-SLUG-DEC-001 sha256:f5beb4c9e50201006e5df3baf217e7724764e1a9da634aafdc0048320bc56c09
 - Adopt the checksum-verified `go-library-tools` v1.4.0 CLI and immutable
   reusable workflow so local and hosted cohesion and specification checks use
   the final monitored-authority contract.
