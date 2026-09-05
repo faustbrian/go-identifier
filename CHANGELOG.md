@@ -36,6 +36,10 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Documentation
 
+- Document stable-v1 maturity, Go 1.26.6 support, installation, lifecycle,
+  executable adoption, troubleshooting, support, and security entry points.
+- Correct the security-reporting repository identity and the v1.0.0 heading to
+  the signed tag and release publication date.
 - Link identifier selection and adoption guidance to the immutable v1.4.0
   ecosystem index and Foundations family.
 - Replace archived monorepo and hardening terminology with package-owned
@@ -54,7 +58,7 @@ All notable changes follow Keep a Changelog and semantic versioning.
   - IDENTIFIER-NANOID-DEC-001 sha256:4262c4d507befaf8bb8ae13ed0abf153b0ff2dcc1f8fa11d0117e14929d4ac93
   - IDENTIFIER-SLUG-DEC-001 sha256:8c3431d77c68c089e940105a76af959f3e99fe8aea9536a46e608aae94b6af8b
 
-## 1.0.0 - 2026-08-25
+## 1.0.0 - 2026-08-26
 
 ### Changed
 
@@ -103,5 +107,3 @@ All notable changes follow Keep a Changelog and semantic versioning.
   mutation, race, benchmark, documentation, and CI gates.
 - Structured-log redaction plus exhaustive hostile-input, collision,
   cross-language, concurrency, PostgreSQL-codec, and leakage evidence.
-
-No release has been published.

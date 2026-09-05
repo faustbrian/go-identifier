@@ -2,6 +2,9 @@
 
 ## Getting started
 
+- [Install](../README.md#install)
+- [Five-minute quick start](../README.md#quick-start)
+- [Executable example](../example_test.go)
 - [API](api.md)
 - [Identifier selection](selection.md)
 
@@ -23,5 +26,9 @@
 - [Compatibility](compatibility.md)
 - [Migration](migration.md)
 - [FAQ](faq.md)
+- [Troubleshooting](faq.md#troubleshooting)
+- [Support](../SUPPORT.md)
+- [Security reporting](../SECURITY.md)
 - [Contribution guide](../CONTRIBUTING.md)
 - [Release history](../CHANGELOG.md)
+- [License](../LICENSE)
