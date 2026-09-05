@@ -17,9 +17,19 @@ clock, entropy, ordering, leakage, and persistence contract; an identifier is
 never treated as a secret, authorization fact, idempotency proof, or tracing
 context merely because it is unique.
 
-The minimum toolchain is Go 1.26.6. Random generators use `crypto/rand` by
-default and own all mutable state. Tests can inject deterministic clocks and
-entropy through `idtest`.
+This is a stable v1 module. It requires Go 1.26.6 and follows semantic
+versioning. Identifier values are immutable and stateless. Generator instances
+own their synchronization and, for sortable families, monotonic sequence state.
+They retain caller-provided clocks and entropy readers, whose lifecycle and
+correctness remain caller-owned. Generators start no background work and require
+no `Close` or `Shutdown`. Tests can inject deterministic clocks and entropy
+through `idtest`.
+
+## Install
+
+```sh
+go get github.com/faustbrian/go-identifier
+```
 
 ## Choose a family
 
@@ -38,14 +48,27 @@ generators reveal creation time and may reveal local issuance order.
 ## Quick start
 
 ```go
-clock := identifier.ClockFunc(time.Now)
-generator := uuid.NewV7Generator(clock, nil)
-id, err := generator.New()
-if err != nil {
-    return err
+package main
+
+import (
+    "fmt"
+
+    "github.com/faustbrian/go-identifier/uuid"
+)
+
+func main() {
+    generator := uuid.NewV7Generator(nil, nil)
+    id, err := generator.New()
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("uuid version: %d\n", id.Version())
 }
-fmt.Println(id.String())
 ```
+
+This flow is kept executable by the package-level
+[`Example`](example_test.go). See the [API map](docs/api.md) for the UUID,
+ULID, TypeID, KSUID, NanoID, slug, typed-ID, and test-helper entry points.
 
 There is no package-global generator. Keep one generator per ownership and
 failure domain, and share that instance only when its monotonic sequence should
@@ -70,8 +93,14 @@ selection remain application persistence concerns.
 - [Compatibility](docs/compatibility.md)
 - [Specification decisions](docs/specification-decisions.md)
 - [API map](docs/api.md)
+- [Executable example](example_test.go)
 - [Architecture](docs/architecture.md)
 - [FAQ](docs/faq.md)
+- [Troubleshooting](docs/faq.md#troubleshooting)
+- [Support](SUPPORT.md)
+- [Security reporting](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [License](LICENSE)
 
 For neighboring packages and composition guidance, see the versioned
 [Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md)

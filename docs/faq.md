@@ -35,3 +35,25 @@ collision, rate-limit, and abuse requirements.
 
 Node assignment, durable leases, rollback, sequence overflow, epoch, and fleet
 lifetime are deployment concerns. A generic library cannot safely guess them.
+
+## Troubleshooting
+
+### Why did generation fail after the clock moved backwards?
+
+UUIDv7, ULID, TypeID, and KSUID generators preserve their ordering contract by
+returning an error that matches `identifier.ErrClockRollback` through
+`errors.Is`. Repair the clock or apply bounded backpressure; do not loop without
+a delay or silently replace the generator.
+
+### Why did parsing reject an identifier another library accepted?
+
+This module enforces its documented canonical form. Check family selection,
+letter case, UUID variant and version, TypeID prefix rules, and NanoID alphabet
+and entropy settings. The [compatibility contract](compatibility.md) records
+the intentional differences from maintained reference implementations.
+
+### Where should operational details go in a support request?
+
+Follow the [support guide](../SUPPORT.md) and remove live identifiers,
+credentials, customer data, and other sensitive values. Security reports use
+the private process in the [security policy](../SECURITY.md).

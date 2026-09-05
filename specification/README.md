@@ -17,6 +17,23 @@ observed peer behavior without treating popularity as normative authority.
 
 ## Upstream review history
 
+### 2026-09-05
+
+- `laravel-framework-updates` advanced from SHA-256
+  `0786f3a3a049ea729e48d87c01ac54c48fde29a49f09d4478b2f951e5c027fb5`
+  to
+  `9ec8486ac832ed7cd2ef2f767bac5119bd7d2d681baa721a3c4229790e03cc2b`.
+  The exact Laravel 13.x range
+  `402ab340f895525709c1037d5ba52d926865a7ca...cdbd17f7e3257e8ae4207d3c3bef6058452d5f72`
+  contains four commits limited to Cloud queue configuration,
+  concurrent-process context propagation, JSON:API resource stub cleanup,
+  HTTP client callback lifetime, and their tests. The
+  `src/Illuminate/Support/Str.php` content is byte-identical at both range
+  endpoints (SHA-256
+  `14a4be5b420ed2fed14855cc622067ecfe9d73b038d2cdb683e47c5d38196183`).
+  The frozen English slug source pin, selected normalization, public API,
+  compatibility, and wire contract therefore remain unchanged.
+
 ### 2026-09-03
 
 - `nanoid-reference-updates` advanced from SHA-256
