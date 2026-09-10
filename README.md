@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-identifier.svg)](https://pkg.go.dev/github.com/faustbrian/go-identifier)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-identifier?sort=semver)](https://github.com/faustbrian/go-identifier/releases)
-[![Go](https://img.shields.io/badge/go-1.26.6-00ADD8?logo=go)](https://go.dev/)
+[![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 `identifier` provides strict, immutable UUID, ULID, TypeID, KSUID, and
@@ -17,7 +17,7 @@ clock, entropy, ordering, leakage, and persistence contract; an identifier is
 never treated as a secret, authorization fact, idempotency proof, or tracing
 context merely because it is unique.
 
-This is a stable v1 module. It requires Go 1.26.6 and follows semantic
+This is a stable v1 module. It requires Go 1.27.0 and follows semantic
 versioning. Identifier values are immutable and stateless. Generator instances
 own their synchronization and, for sortable families, monotonic sequence state.
 They retain caller-provided clocks and entropy readers, whose lifecycle and

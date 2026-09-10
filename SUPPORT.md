@@ -11,4 +11,4 @@ adoption questions and bounded design exploration. Use the private process in
 
 Support covers released module versions according to
 [`COMPATIBILITY.md`](COMPATIBILITY.md). The stable v1 module requires Go
-1.26.6. Changes on `main` remain unreleased until included in a tagged version.
+1.27.0. Changes on `main` remain unreleased until included in a tagged version.
