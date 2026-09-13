@@ -1,5 +1,9 @@
 # Documentation
 
+The public API reference remains the released
+[`github.com/faustbrian/go-identifier`](https://pkg.go.dev/github.com/faustbrian/go-identifier)
+v1 module. The current source targets planned, unpublished v2.
+
 ## Getting started
 
 - [Install](../README.md#install)
@@ -18,6 +22,7 @@
 ## Operations and security
 
 - [Security](security.md)
+- [Threat model](threat-model.md)
 - [Performance](performance.md)
 - [Verification](verification.md)
 

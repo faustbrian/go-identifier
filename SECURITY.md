@@ -10,3 +10,6 @@ branch contains unreleased development and is not a substitute for a supported
 release. A report should include the affected family, input or generator
 configuration, impact, reproduction, and whether entropy, clocks, persistence,
 or concurrency is involved.
+
+The repository's versioned [threat model](docs/threat-model.md) defines the
+assets, trust boundaries, controls, and accepted risks used to assess reports.

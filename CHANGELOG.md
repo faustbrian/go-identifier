@@ -4,6 +4,16 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+### Security
+
+- Prepare planned `/v2` diagnostic behavior that redacts caller-controlled
+  validator, entropy, and JSON failures, SQL runtime types, and rollback clock
+  values while preserving package sentinel classifications, and bounds generic
+  and concrete identifier inputs before validation, conversion, or JSON
+  decoding. This behavior is not releasable on the stable v1 module path.
+- Add a versioned repository threat model for identifier assets, trust
+  boundaries, hostile inputs, controls, and explicitly owned accepted risks.
+
 ### Changed
 
 - Review Laravel 13.x Cloud queue, concurrency context, JSON:API stub, and HTTP

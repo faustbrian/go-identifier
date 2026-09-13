@@ -14,13 +14,15 @@ import (
 	"sync"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 	oklogulid "github.com/oklog/ulid/v2"
 )
 
 const (
 	alphabet          = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 	maximumUnixMillis = int64(281_474_976_710_655)
+	textLength        = 26
+	maximumJSONBytes  = textLength*6 + 2
 )
 
 // ID is an immutable ULID. The validity bit distinguishes an unassigned Go
@@ -33,8 +35,8 @@ type ID struct {
 // Parse accepts a consistently uppercase or lowercase Crockford Base32 ULID.
 // Mixed-case text and ambiguous Crockford characters are rejected.
 func Parse(text string) (ID, error) {
-	if len(text) != 26 {
-		return ID{}, fmt.Errorf("%w: ULID length is %d", identifier.ErrInvalid, len(text))
+	if len(text) != textLength {
+		return ID{}, fmt.Errorf("%w: ULID text length is invalid", identifier.ErrInvalid)
 	}
 	if text[0] > '7' {
 		return ID{}, fmt.Errorf("%w: ULID exceeds 128 bits", identifier.ErrInvalid)
@@ -120,6 +122,10 @@ func (id ID) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (id *ID) UnmarshalText(text []byte) error {
+	if len(text) != textLength {
+		return fmt.Errorf("%w: ULID text length is invalid", identifier.ErrInvalid)
+	}
+
 	parsed, err := Parse(string(text))
 	if err != nil {
 		return err
@@ -144,7 +150,7 @@ func (id ID) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary validates a 16-byte representation.
 func (id *ID) UnmarshalBinary(data []byte) error {
 	if len(data) != 16 {
-		return fmt.Errorf("%w: ULID binary length is %d", identifier.ErrInvalid, len(data))
+		return fmt.Errorf("%w: ULID binary length is invalid", identifier.ErrInvalid)
 	}
 
 	var value [16]byte
@@ -170,13 +176,22 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 
 		return nil
 	}
+	if len(data) > maximumJSONBytes {
+		return fmt.Errorf("%w: ULID JSON length is invalid", identifier.ErrInvalid)
+	}
 
 	var text string
 	if err := json.Unmarshal(data, &text); err != nil {
-		return fmt.Errorf("decode ULID: %w", err)
+		return fmt.Errorf("%w: malformed ULID JSON", identifier.ErrInvalid)
 	}
 
-	return id.UnmarshalText([]byte(text))
+	parsed, err := Parse(text)
+	if err != nil {
+		return err
+	}
+	*id = parsed
+
+	return nil
 }
 
 // Value implements driver.Valuer using canonical text.
@@ -196,7 +211,13 @@ func (id *ID) Scan(src any) error {
 
 		return nil
 	case string:
-		return id.UnmarshalText([]byte(value))
+		parsed, err := Parse(value)
+		if err != nil {
+			return err
+		}
+		*id = parsed
+
+		return nil
 	case []byte:
 		if len(value) == 16 {
 			return id.UnmarshalBinary(value)
@@ -204,7 +225,7 @@ func (id *ID) Scan(src any) error {
 
 		return id.UnmarshalText(value)
 	default:
-		return fmt.Errorf("%w: cannot scan ULID from %T", identifier.ErrInvalid, src)
+		return fmt.Errorf("%w: unsupported ULID scan source", identifier.ErrInvalid)
 	}
 }
 
@@ -242,7 +263,7 @@ func (generator *Generator) New() (ID, error) {
 		return ID{}, fmt.Errorf("%w: ULID timestamp is outside 48 bits", identifier.ErrInvalid)
 	}
 	if generator.initialized && milliseconds < generator.lastMillis {
-		return ID{}, fmt.Errorf("%w: ULID moved from %d to %d", identifier.ErrClockRollback, generator.lastMillis, milliseconds)
+		return ID{}, fmt.Errorf("%w: ULID clock moved backward", identifier.ErrClockRollback)
 	}
 	if generator.initialized && milliseconds == generator.lastMillis {
 		id := generator.last
@@ -262,7 +283,7 @@ func (generator *Generator) New() (ID, error) {
 		timestamp >>= 8
 	}
 	if _, err := io.ReadFull(generator.entropy, value[6:]); err != nil {
-		return ID{}, fmt.Errorf("%w: ULID: %w", identifier.ErrEntropy, err)
+		return ID{}, fmt.Errorf("%w: ULID entropy source failed", identifier.ErrEntropy)
 	}
 
 	id := FromBytes(value)

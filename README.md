@@ -17,18 +17,23 @@ clock, entropy, ordering, leakage, and persistence contract; an identifier is
 never treated as a secret, authorization fact, idempotency proof, or tracing
 context merely because it is unique.
 
-This is a stable v1 module. It requires Go 1.27.0 and follows semantic
-versioning. Identifier values are immutable and stateless. Generator instances
-own their synchronization and, for sortable families, monotonic sequence state.
-They retain caller-provided clocks and entropy readers, whose lifecycle and
-correctness remain caller-owned. Generators start no background work and require
-no `Close` or `Shutdown`. Tests can inject deterministic clocks and entropy
-through `idtest`.
+The latest published module is the stable v1.0.0 library. This branch prepares
+the planned `github.com/faustbrian/go-identifier/v2` source and is not published
+or releasable yet. Existing consumers must remain on released v1 and must not
+use a local `replace` directive to consume this checkout as v1.
+
+Released v1 requires Go 1.27.0 and follows semantic versioning. Identifier
+values are immutable and stateless. Planned-v2 generator instances own their
+synchronization and, for sortable families, monotonic sequence state. They
+retain caller-provided clocks and entropy readers, whose lifecycle and
+correctness remain caller-owned. Generators start no background work and
+require no `Close` or `Shutdown`. Tests can inject deterministic clocks and
+entropy through `idtest`.
 
 ## Install
 
 ```sh
-go get github.com/faustbrian/go-identifier
+go get github.com/faustbrian/go-identifier@v1.0.0
 ```
 
 ## Choose a family
@@ -53,7 +58,7 @@ package main
 import (
     "fmt"
 
-    "github.com/faustbrian/go-identifier/uuid"
+    "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 func main() {
@@ -66,7 +71,7 @@ func main() {
 }
 ```
 
-This flow is kept executable by the package-level
+This planned-v2 flow is kept executable by the package-level
 [`Example`](example_test.go). See the [API map](docs/api.md) for the UUID,
 ULID, TypeID, KSUID, NanoID, slug, typed-ID, and test-helper entry points.
 
@@ -89,6 +94,7 @@ selection remain application persistence concerns.
 - [Database behavior](docs/database.md)
 - [Migration](docs/migration.md)
 - [Security](docs/security.md)
+- [Threat model](docs/threat-model.md)
 - [Performance](docs/performance.md)
 - [Compatibility](docs/compatibility.md)
 - [Specification decisions](docs/specification-decisions.md)

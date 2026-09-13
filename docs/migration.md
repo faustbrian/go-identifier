@@ -1,5 +1,31 @@
 # Migration
 
+## Planned v2 diagnostic redaction
+
+Version 2 is not published. Its error and test-diagnostic surfaces redact
+caller-supplied validator and entropy errors, malformed JSON tokens, SQL source
+types, and rollback clock values. The package sentinel remains available to
+`errors.Is`, but v2 intentionally no longer exposes an injected validator or
+entropy error through the error chain.
+
+Version 2 also rejects generic typed-identifier text above 1,024 bytes before
+calling its validator and encoded JSON above 6,146 bytes before decoding. Audit
+typed identifiers longer than `MaxTypedIDBytes` before migration.
+
+No v2 tag is published. Every direct owned consumer remains a released-v1
+blocker for declaring the v2 ecosystem migration complete, and none uses a
+local replacement:
+
+- `go-correlation` uses Identifier v1.0.0 UUID generation;
+- `go-queue-control-plane` uses Identifier v1.0.0 ULID generation; and
+- `go-library-tools/release/compatibility-consumer` pins Identifier v1.0.0 as
+  its released compatibility boundary.
+
+Those consumers must migrate only after a public v2 release and a separate
+review of each affected runtime or compatibility boundary. Do not add a local
+`replace` directive to bridge the unpublished source. Planned v2 imports add
+the `/v2` path segment; released-v1 imports remain unchanged.
+
 ## Laravel and Postal ULIDs
 
 Laravel ULIDs and Postal persistence can use a lowercase 26-character ULID

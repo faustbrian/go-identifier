@@ -15,13 +15,15 @@ import (
 	"sync"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const (
 	gregorianToUnixSeconds = int64(12_219_292_800)
 	maximumUnixMillis      = int64(281_474_976_710_655)
+	textLength             = 36
+	maximumJSONBytes       = textLength*6 + 2
 )
 
 // ID is an immutable UUID value. Bytes returns a copy rather than an alias.
@@ -30,7 +32,7 @@ type ID [16]byte
 // Parse accepts only canonical lowercase RFC 9562 text and versions 1 through
 // 8 using the RFC variant.
 func Parse(text string) (ID, error) {
-	if len(text) != 36 || text[8] != '-' || text[13] != '-' || text[18] != '-' || text[23] != '-' {
+	if len(text) != textLength || text[8] != '-' || text[13] != '-' || text[18] != '-' || text[23] != '-' {
 		return ID{}, fmt.Errorf("%w: UUID must use canonical 8-4-4-4-12 form", identifier.ErrInvalid)
 	}
 
@@ -60,7 +62,7 @@ func FromBytes(value [16]byte) (ID, error) { return validate(ID(value)) }
 func validate(id ID) (ID, error) {
 	version := id.Version()
 	if version < 1 || version > 8 {
-		return ID{}, fmt.Errorf("%w: UUID version %d", identifier.ErrInvalid, version)
+		return ID{}, fmt.Errorf("%w: UUID version is unsupported", identifier.ErrInvalid)
 	}
 	if id[8]&0xc0 != 0x80 {
 		return ID{}, fmt.Errorf("%w: UUID is not the RFC variant", identifier.ErrInvalid)
@@ -87,7 +89,7 @@ func (id ID) Compare(other ID) int { return bytes.Compare(id[:], other[:]) }
 
 // String returns canonical lowercase text.
 func (id ID) String() string {
-	var text [36]byte
+	var text [textLength]byte
 	hex.Encode(text[0:8], id[0:4])
 	text[8] = '-'
 	hex.Encode(text[9:13], id[4:6])
@@ -152,6 +154,10 @@ func (id ID) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (id *ID) UnmarshalText(text []byte) error {
+	if len(text) != textLength {
+		return fmt.Errorf("%w: UUID text length is invalid", identifier.ErrInvalid)
+	}
+
 	parsed, err := Parse(string(text))
 	if err != nil {
 		return err
@@ -176,7 +182,7 @@ func (id ID) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary validates a 16-byte representation.
 func (id *ID) UnmarshalBinary(data []byte) error {
 	if len(data) != 16 {
-		return fmt.Errorf("%w: UUID binary length is %d", identifier.ErrInvalid, len(data))
+		return fmt.Errorf("%w: UUID binary length is invalid", identifier.ErrInvalid)
 	}
 
 	var value [16]byte
@@ -206,13 +212,22 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 
 		return nil
 	}
+	if len(data) > maximumJSONBytes {
+		return fmt.Errorf("%w: UUID JSON length is invalid", identifier.ErrInvalid)
+	}
 
 	var text string
 	if err := json.Unmarshal(data, &text); err != nil {
-		return fmt.Errorf("decode UUID: %w", err)
+		return fmt.Errorf("%w: malformed UUID JSON", identifier.ErrInvalid)
 	}
 
-	return id.UnmarshalText([]byte(text))
+	parsed, err := Parse(text)
+	if err != nil {
+		return err
+	}
+	*id = parsed
+
+	return nil
 }
 
 // Value implements driver.Valuer using PostgreSQL-compatible canonical text.
@@ -232,7 +247,13 @@ func (id *ID) Scan(src any) error {
 
 		return nil
 	case string:
-		return id.UnmarshalText([]byte(value))
+		parsed, err := Parse(value)
+		if err != nil {
+			return err
+		}
+		*id = parsed
+
+		return nil
 	case []byte:
 		if len(value) == 16 {
 			return id.UnmarshalBinary(value)
@@ -240,7 +261,7 @@ func (id *ID) Scan(src any) error {
 
 		return id.UnmarshalText(value)
 	default:
-		return fmt.Errorf("%w: cannot scan UUID from %T", identifier.ErrInvalid, src)
+		return fmt.Errorf("%w: unsupported UUID scan source", identifier.ErrInvalid)
 	}
 }
 
@@ -290,7 +311,7 @@ func NewV4Generator(entropy io.Reader) *V4Generator {
 func (generator *V4Generator) New() (ID, error) {
 	var id ID
 	if _, err := io.ReadFull(generator.entropy, id[:]); err != nil {
-		return ID{}, fmt.Errorf("%w: UUIDv4: %w", identifier.ErrEntropy, err)
+		return ID{}, fmt.Errorf("%w: UUIDv4 entropy source failed", identifier.ErrEntropy)
 	}
 	id[6] = id[6]&0x0f | 0x40
 	id[8] = id[8]&0x3f | 0x80
@@ -344,7 +365,7 @@ func (generator *V7Generator) New() (ID, error) {
 		return ID{}, fmt.Errorf("%w: UUIDv7 timestamp is outside 48 bits", identifier.ErrInvalid)
 	}
 	if generator.initialized && milliseconds < generator.lastMillis {
-		return ID{}, fmt.Errorf("%w: UUIDv7 moved from %d to %d", identifier.ErrClockRollback, generator.lastMillis, milliseconds)
+		return ID{}, fmt.Errorf("%w: UUIDv7 clock moved backward", identifier.ErrClockRollback)
 	}
 	if generator.initialized && milliseconds == generator.lastMillis {
 		id := generator.last
@@ -358,7 +379,7 @@ func (generator *V7Generator) New() (ID, error) {
 
 	var random [10]byte
 	if _, err := io.ReadFull(generator.entropy, random[:]); err != nil {
-		return ID{}, fmt.Errorf("%w: UUIDv7: %w", identifier.ErrEntropy, err)
+		return ID{}, fmt.Errorf("%w: UUIDv7 entropy source failed", identifier.ErrEntropy)
 	}
 
 	var id ID

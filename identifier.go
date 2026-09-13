@@ -23,6 +23,13 @@ var (
 	ErrUnsupported = errors.New("unsupported identifier")
 )
 
+const (
+	// MaxTypedIDBytes bounds canonical text before a Validator is invoked.
+	MaxTypedIDBytes = 1024
+	// MaxTypedIDJSONBytes bounds an escaped JSON string before decoding.
+	MaxTypedIDJSONBytes = MaxTypedIDBytes*6 + 2
+)
+
 // Clock is an explicitly owned time source.
 type Clock interface {
 	Now() time.Time
@@ -51,16 +58,19 @@ type ID[Tag Validator] struct {
 	text string
 }
 
-// Parse validates canonical text for Tag.
+// Parse validates canonical text for Tag after enforcing MaxTypedIDBytes.
 func Parse[Tag Validator](text string) (ID[Tag], error) {
 	var tag Tag
 
 	if text == "" {
 		return ID[Tag]{}, fmt.Errorf("%w: empty typed ID", ErrInvalid)
 	}
+	if len(text) > MaxTypedIDBytes {
+		return ID[Tag]{}, fmt.Errorf("%w: typed ID text length is invalid", ErrInvalid)
+	}
 
 	if err := tag.Validate(text); err != nil {
-		return ID[Tag]{}, fmt.Errorf("%w: %w", ErrInvalid, err)
+		return ID[Tag]{}, fmt.Errorf("%w: typed ID validation failed", ErrInvalid)
 	}
 
 	return ID[Tag]{text: text}, nil
@@ -93,6 +103,10 @@ func (id ID[Tag]) MarshalText() ([]byte, error) { return []byte(id.text), nil }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (id *ID[Tag]) UnmarshalText(text []byte) error {
+	if len(text) > MaxTypedIDBytes {
+		return fmt.Errorf("%w: typed ID text length is invalid", ErrInvalid)
+	}
+
 	parsed, err := Parse[Tag](string(text))
 	if err != nil {
 		return err
@@ -112,11 +126,16 @@ func (id *ID[Tag]) UnmarshalBinary(data []byte) error { return id.UnmarshalText(
 // MarshalJSON encodes the canonical identifier as a JSON string.
 func (id ID[Tag]) MarshalJSON() ([]byte, error) { return json.Marshal(id.text) }
 
-// UnmarshalJSON decodes and validates a canonical JSON string.
+// UnmarshalJSON decodes and validates a canonical JSON string no larger than
+// MaxTypedIDJSONBytes.
 func (id *ID[Tag]) UnmarshalJSON(data []byte) error {
+	if len(data) > MaxTypedIDJSONBytes {
+		return fmt.Errorf("%w: typed ID JSON length is invalid", ErrInvalid)
+	}
+
 	var text string
 	if err := json.Unmarshal(data, &text); err != nil {
-		return fmt.Errorf("decode typed identifier: %w", err)
+		return fmt.Errorf("%w: malformed typed identifier JSON", ErrInvalid)
 	}
 
 	return id.UnmarshalText([]byte(text))
@@ -139,11 +158,17 @@ func (id *ID[Tag]) Scan(src any) error {
 
 		return nil
 	case string:
-		return id.UnmarshalText([]byte(value))
+		parsed, err := Parse[Tag](value)
+		if err != nil {
+			return err
+		}
+		*id = parsed
+
+		return nil
 	case []byte:
 		return id.UnmarshalText(value)
 	default:
-		return fmt.Errorf("%w: cannot scan typed ID from %T", ErrInvalid, src)
+		return fmt.Errorf("%w: unsupported typed ID scan source", ErrInvalid)
 	}
 }
 

@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"testing"
 
-	identifier "github.com/faustbrian/go-identifier"
-	identifierksuid "github.com/faustbrian/go-identifier/ksuid"
-	identifiernanoid "github.com/faustbrian/go-identifier/nanoid"
-	identifiertypeid "github.com/faustbrian/go-identifier/typeid"
-	identifierulid "github.com/faustbrian/go-identifier/ulid"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier/v2"
+	identifierksuid "github.com/faustbrian/go-identifier/v2/ksuid"
+	identifiernanoid "github.com/faustbrian/go-identifier/v2/nanoid"
+	identifiertypeid "github.com/faustbrian/go-identifier/v2/typeid"
+	identifierulid "github.com/faustbrian/go-identifier/v2/ulid"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 

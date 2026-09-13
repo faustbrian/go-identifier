@@ -16,7 +16,7 @@ api:
   baselines:
   - module: "."
     mode: go-doc
-    path: api/baseline.txt
+    path: api/v2/baseline.txt
     packages:
     - "."
     - ./uuid
