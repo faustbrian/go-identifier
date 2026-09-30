@@ -2,7 +2,7 @@
 
 The repository-specific, versioned [threat model](threat-model.md) inventories
 assets, trust boundaries, attacker-controlled inputs, controls, and accepted
-risks for the planned, unpublished v2 source. Released v1 retains its published
+risks for the v2 source. Released v1 retains its published
 diagnostic behavior. This page provides the corresponding adoption guidance.
 
 Default randomness comes from `crypto/rand.Reader`. Supplying another reader
@@ -57,3 +57,8 @@ Concrete-family text, binary, SQL, and JSON decoders apply their fixed wire
 length before converting or decoding input. Encoded JSON is bounded to six
 times the family text length plus the two surrounding quotes, preserving every
 valid ASCII escape form without accepting proportional work from larger input.
+
+`uuid.ID` is a public array copied by assignment, not an immutable wrapper.
+Callers can construct or mutate their own value outside parsing; outbound
+encoding assumes that value is assigned and valid. Validate untrusted bytes
+through `uuid.FromBytes` or a decoding method before using the value.

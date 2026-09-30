@@ -130,7 +130,9 @@ with explicitly owned entropy, clocks, and monotonic state.
 TYPES
 
 type ID [16]byte
-    ID is an immutable UUID value. Bytes returns a copy rather than an alias.
+    ID is a UUID value copied by assignment. Callers can mutate their own
+    array value; outbound encoding assumes it remains an assigned, valid UUID.
+    Bytes returns a copy rather than an alias.
 
 func FromBytes(value [16]byte) (ID, error)
     FromBytes validates a copied binary UUID value.

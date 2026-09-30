@@ -1,7 +1,9 @@
 # Architecture
 
-Concrete identifiers are immutable values. Fixed-width families return arrays
-by value, never mutable slices. Variable text values keep state private.
+Concrete identifiers have value-copy semantics. UUID's public array is mutable
+by its caller, so outbound encoding assumes an assigned, valid value. Fixed-
+width families return arrays by value, never mutable slices. Other concrete
+families keep their state private.
 Serialization validates into a temporary value before replacing a receiver.
 
 Generators own their clock, entropy reader, mutex, and monotonic state. There

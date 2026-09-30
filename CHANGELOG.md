@@ -6,11 +6,12 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Security
 
-- Prepare planned `/v2` diagnostic behavior that redacts caller-controlled
+- Prepare `/v2` diagnostic behavior that redacts caller-controlled
   validator, entropy, and JSON failures, SQL runtime types, and rollback clock
   values while preserving package sentinel classifications, and bounds generic
   and concrete identifier inputs before validation, conversion, or JSON
-  decoding. This behavior is not releasable on the stable v1 module path.
+  decoding. This breaking behavior belongs only on the `/v2` module path;
+  published v1 diagnostics remain unchanged.
 - Add a versioned repository threat model for identifier assets, trust
   boundaries, hostile inputs, controls, and explicitly owned accepted risks.
 

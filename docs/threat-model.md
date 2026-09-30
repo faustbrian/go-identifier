@@ -1,7 +1,7 @@
 # Threat model
 
 **Model version:** 1.0
-**Applies to:** planned `github.com/faustbrian/go-identifier/v2` source
+**Applies to:** `github.com/faustbrian/go-identifier/v2` source
 **Reviewed:** 2026-09-13
 **Owner:** `go-identifier` maintainers
 
@@ -12,8 +12,8 @@ rules; the repository [security policy](../SECURITY.md) defines private
 reporting.
 
 Released v1.0.0 retains its published diagnostic behavior and is not described
-as hardened by this model. The planned v2 source is explicitly non-releasable
-until its direct owned consumers have a published migration boundary.
+as hardened by this model. Direct owned consumers migrate only after the
+signed v2 release is public; their migration is a separate delivery boundary.
 
 ## Assets and security properties
 
@@ -73,7 +73,7 @@ network, filesystem, environment, subprocess, or credential-store access.
 | ID | Risk | Owner | Rationale | Mitigation | Review condition |
 | --- | --- | --- | --- | --- | --- |
 | IDENTIFIER-RISK-001 | UUIDv7, ULID, generated TypeID, and KSUID reveal creation time and local issuance order; TypeID reveals its prefix and imported UUIDv1/v6 values may contain a node field. | `go-identifier` maintainers | These fields are required by the selected public wire formats. | Use UUIDv4 or NanoID when this metadata is unacceptable; never use an identifier as a secret; apply application retention and access controls. | Reassess when adding a family, changing a wire profile, or receiving evidence that metadata disclosure violates an owned use case. |
-| IDENTIFIER-RISK-002 | Caller-supplied `Validator`, `Clock`, and `io.Reader` implementations are synchronous and cannot be cancelled by the planned v2 API if they block; these collaborators can also panic. | `go-identifier` maintainers | Planned v2 retains the standard synchronous interfaces from released v1; a goroutine wrapper would leak work and would not cancel the collaborator, while recovering a collaborator panic would hide caller corruption. | Typed input is capped before validation; defaults use local `time.Now` and `crypto/rand.Reader`; callers must inject prompt, bounded, panic-free collaborators and apply cancellation before entering validation or generation. | Reassess before publishing v2, after a report of blocked or panicking production validation or generation, or when adopting a context-aware collaborator contract. |
+| IDENTIFIER-RISK-002 | Caller-supplied `Validator`, `Clock`, and `io.Reader` implementations are synchronous and cannot be cancelled by the v2 API if they block; these collaborators can also panic. | `go-identifier` maintainers | V2 retains the standard synchronous interfaces from released v1; a goroutine wrapper would leak work and would not cancel the collaborator, while recovering a collaborator panic would hide caller corruption. | Typed input is capped before validation; defaults use local `time.Now` and `crypto/rand.Reader`; callers must inject prompt, bounded, panic-free collaborators and apply cancellation before entering validation or generation. | Reassess after a report of blocked or panicking production validation or generation, or when adopting a context-aware collaborator contract. |
 | IDENTIFIER-RISK-003 | Explicit `String`, marshal, database, and inspection calls release identifier or timestamp data. | Application owners | These methods are the package's required persistence and interoperability surface. | Classify data before use, avoid raw metric labels, prefer structured logging redaction, and restrict storage and telemetry access. | Reassess when adding an automatic exporter, logger, metric, tracing adapter, or new serialization surface. |
 
 No accepted risk permits credentials, live customer data, entropy-source errors,

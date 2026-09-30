@@ -26,7 +26,9 @@ const (
 	maximumJSONBytes       = textLength*6 + 2
 )
 
-// ID is an immutable UUID value. Bytes returns a copy rather than an alias.
+// ID is a UUID value copied by assignment. Callers can mutate their own array
+// value; outbound encoding assumes it remains an assigned, valid UUID. Bytes
+// returns a copy rather than an alias.
 type ID [16]byte
 
 // Parse accepts only canonical lowercase RFC 9562 text and versions 1 through

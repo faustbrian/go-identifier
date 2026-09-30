@@ -5,36 +5,43 @@
 [![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Mutation](https://img.shields.io/badge/mutation-100%25_required-blue)](CONTRIBUTING.md#verification)
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
-[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-identifier.svg)](https://pkg.go.dev/github.com/faustbrian/go-identifier)
+[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-identifier/v2.svg)](https://pkg.go.dev/github.com/faustbrian/go-identifier/v2)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-identifier?sort=semver)](https://github.com/faustbrian/go-identifier/releases)
 [![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-`identifier` provides strict, immutable UUID, ULID, TypeID, KSUID, and
+`identifier` provides strict UUID, ULID, TypeID, KSUID, and
 NanoID values, compile-time domain wrappers, and explicit compatibility
 profiles for derived public identifiers. Each generated family keeps its own
 clock, entropy, ordering, leakage, and persistence contract; an identifier is
 never treated as a secret, authorization fact, idempotency proof, or tracing
 context merely because it is unique.
 
-The latest published module is the stable v1.0.0 library. This branch prepares
-the planned `github.com/faustbrian/go-identifier/v2` source and is not published
-or releasable yet. Existing consumers must remain on released v1 and must not
-use a local `replace` directive to consume this checkout as v1.
+This source targets `github.com/faustbrian/go-identifier/v2` for the breaking
+v2.0.0 release. The published v1.0.0 module remains separate; its diagnostic
+behavior is unchanged. Existing consumers must use released v1 until the
+signed v2 tag is public, then migrate their imports and module dependency
+explicitly. Do not use a local `replace` directive to consume this source as v1.
 
-Released v1 requires Go 1.27.0 and follows semantic versioning. Identifier
-values are immutable and stateless. Planned-v2 generator instances own their
-synchronization and, for sortable families, monotonic sequence state. They
-retain caller-provided clocks and entropy readers, whose lifecycle and
-correctness remain caller-owned. Generators start no background work and
+Both major versions require Go 1.27.0 and follow semantic versioning. Identifier
+values are stateless and copied by assignment. UUID's public array can be
+mutated by its caller; outbound encoding assumes an assigned, valid value.
+Generator instances own their synchronization and, for sortable families,
+monotonic sequence state. They retain caller-provided clocks and entropy
+readers, whose lifecycle and correctness remain caller-owned. Generators start
+no background work and
 require no `Close` or `Shutdown`. Tests can inject deterministic clocks and
 entropy through `idtest`.
 
 ## Install
 
+After the signed v2.0.0 tag is published:
+
 ```sh
-go get github.com/faustbrian/go-identifier@v1.0.0
+go get github.com/faustbrian/go-identifier/v2@v2.0.0
 ```
+
+Until then, existing consumers remain on the released v1 module.
 
 ## Choose a family
 
@@ -71,7 +78,7 @@ func main() {
 }
 ```
 
-This planned-v2 flow is kept executable by the package-level
+This v2 flow is kept executable by the package-level
 [`Example`](example_test.go). See the [API map](docs/api.md) for the UUID,
 ULID, TypeID, KSUID, NanoID, slug, typed-ID, and test-helper entry points.
 

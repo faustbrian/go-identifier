@@ -105,10 +105,10 @@
           "build_tags": []
         }
       ],
-      "purpose": "`identifier` provides strict, immutable UUID, ULID, TypeID, KSUID, and NanoID values, compile-time domain wrappers, and explicit compatibility profiles for derived public identifiers. Each generated family keeps its own clock, entropy, ordering, leakage, and persistence contract; an identifier is never treated as a secret, authorization fact, idempotency proof, or tracing context merely because it is unique.",
-      "lifecycle": "planned",
+      "purpose": "`identifier` provides strict UUID, ULID, TypeID, KSUID, and NanoID values, compile-time domain wrappers, and explicit compatibility profiles for derived public identifiers. UUID is a caller-mutable array with value-copy semantics; other concrete families keep private state. Each generated family keeps its own clock, entropy, ordering, leakage, and persistence contract; an identifier is never treated as a secret, authorization fact, idempotency proof, or tracing context merely because it is unique.",
+      "lifecycle": "stable",
       "kind": "public library",
-      "releasable": false,
+      "releasable": true,
       "family": "foundations",
       "family_label": "Foundations",
       "family_description": "Common immutable values, deterministic seams, configuration, identity propagation, and input validation.",
@@ -195,7 +195,7 @@
           "identity-and-access",
           "testing-and-conformance"
         ],
-        "responsibility": "Provide immutable UUID, ULID, TypeID, KSUID, NanoID, typed domain identifier, and deterministic slug values with explicit generation, validation, encoding, ordering, and leakage contracts.",
+        "responsibility": "Provide UUID value-copy semantics and immutable ULID, TypeID, KSUID, NanoID, typed domain identifier, and deterministic slug values with explicit generation, validation, encoding, ordering, and leakage contracts.",
         "non_goals": [
           "Provide secrets, authorization facts, idempotency guarantees, tracing context, database uniqueness, or distributed identifier coordination.",
           "Install package-global generators, clocks, entropy sources, registries, or hidden runtime state.",
@@ -215,8 +215,8 @@
           "github.com/faustbrian/go-identifier/v2/ulid": "Use when an existing schema requires canonical 26-character ULID text and millisecond ordering.",
           "github.com/faustbrian/go-identifier/v2/uuid": "Use for RFC 9562 UUID parsing, UUIDv4 generation, or monotonic UUIDv7 generation."
         },
-        "lifecycle_status": "planned",
-        "maturity": "preview",
+        "lifecycle_status": "active",
+        "maturity": "stable",
         "construction_styles": [
           "new-config",
           "plain-function",
@@ -271,14 +271,14 @@
           "examples": "README.md",
           "faq": "docs/faq.md",
           "changelog": "CHANGELOG.md",
-          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-identifier",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-identifier/v2",
           "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md"
         },
         "known_good_compatibility_sets": [],
         "delivery": {
           "implementation": "in-progress",
           "hardening": "in-progress",
-          "release": "blocked"
+          "release": "in-progress"
         }
       }
     }

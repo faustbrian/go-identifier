@@ -1,8 +1,8 @@
 # Documentation
 
-The public API reference remains the released
-[`github.com/faustbrian/go-identifier`](https://pkg.go.dev/github.com/faustbrian/go-identifier)
-v1 module. The current source targets planned, unpublished v2.
+The current source targets
+[`github.com/faustbrian/go-identifier/v2`](https://pkg.go.dev/github.com/faustbrian/go-identifier/v2).
+The released v1 module remains a separate import path and compatibility contract.
 
 ## Getting started
 
