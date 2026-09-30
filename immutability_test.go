@@ -3,9 +3,9 @@ package identifier_test
 import (
 	"testing"
 
-	identifierksuid "github.com/faustbrian/go-identifier/ksuid"
-	identifierulid "github.com/faustbrian/go-identifier/ulid"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifierksuid "github.com/faustbrian/go-identifier/v2/ksuid"
+	identifierulid "github.com/faustbrian/go-identifier/v2/ulid"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 func TestReturnedBinaryRepresentationsNeverAliasIdentifiers(t *testing.T) {

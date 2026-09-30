@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
-	"github.com/faustbrian/go-identifier/idtest"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier/v2"
+	"github.com/faustbrian/go-identifier/v2/idtest"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 func TestClockSupportsDeterministicConcurrentSafeControl(t *testing.T) {

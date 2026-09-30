@@ -12,14 +12,17 @@ import (
 	"strings"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier/v2"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 	oklogulid "github.com/oklog/ulid/v2"
 )
 
 const (
-	suffixAlphabet = "0123456789abcdefghjkmnpqrstvwxyz"
-	zeroSuffix     = "00000000000000000000000000"
+	suffixAlphabet    = "0123456789abcdefghjkmnpqrstvwxyz"
+	zeroSuffix        = "00000000000000000000000000"
+	minimumTextLength = 26
+	maximumTextLength = 90
+	maximumJSONBytes  = maximumTextLength*6 + 2
 )
 
 // ID is an immutable TypeID. Its Go zero value is the official unprefixed
@@ -54,14 +57,14 @@ func ValidatePrefix(prefix string) error {
 // Parse accepts only canonical TypeID 0.3.0 text. Parsing permits every
 // 128-bit suffix required by the official vectors; generation remains UUIDv7.
 func Parse(text string) (ID, error) {
-	if len(text) < 26 || len(text) > 90 {
-		return ID{}, fmt.Errorf("%w: TypeID length is %d", identifier.ErrInvalid, len(text))
+	if len(text) < minimumTextLength || len(text) > maximumTextLength {
+		return ID{}, fmt.Errorf("%w: TypeID text length is invalid", identifier.ErrInvalid)
 	}
 
 	prefix := ""
 	suffix := text
-	if len(text) > 26 {
-		separator := len(text) - 27
+	if len(text) > minimumTextLength {
+		separator := len(text) - minimumTextLength - 1
 		if text[separator] != '_' {
 			return ID{}, fmt.Errorf("%w: TypeID separator is missing", identifier.ErrInvalid)
 		}
@@ -208,6 +211,10 @@ func (id ID) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (id *ID) UnmarshalText(text []byte) error {
+	if len(text) < minimumTextLength || len(text) > maximumTextLength {
+		return fmt.Errorf("%w: TypeID text length is invalid", identifier.ErrInvalid)
+	}
+
 	parsed, err := Parse(string(text))
 	if err != nil {
 		return err
@@ -235,13 +242,22 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 
 		return nil
 	}
+	if len(data) > maximumJSONBytes {
+		return fmt.Errorf("%w: TypeID JSON length is invalid", identifier.ErrInvalid)
+	}
 
 	var text string
 	if err := json.Unmarshal(data, &text); err != nil {
-		return fmt.Errorf("decode TypeID: %w", err)
+		return fmt.Errorf("%w: malformed TypeID JSON", identifier.ErrInvalid)
 	}
 
-	return id.UnmarshalText([]byte(text))
+	parsed, err := Parse(text)
+	if err != nil {
+		return err
+	}
+	*id = parsed
+
+	return nil
 }
 
 // Value implements driver.Valuer using canonical text.
@@ -257,11 +273,17 @@ func (id *ID) Scan(src any) error {
 
 		return nil
 	case string:
-		return id.UnmarshalText([]byte(value))
+		parsed, err := Parse(value)
+		if err != nil {
+			return err
+		}
+		*id = parsed
+
+		return nil
 	case []byte:
 		return id.UnmarshalText(value)
 	default:
-		return fmt.Errorf("%w: cannot scan TypeID from %T", identifier.ErrInvalid, src)
+		return fmt.Errorf("%w: unsupported TypeID scan source", identifier.ErrInvalid)
 	}
 }
 

@@ -1,5 +1,12 @@
 # Guarantees and leakage
 
+## Typed IDs
+
+Generic typed identifiers accept at most 1,024 bytes of canonical text. Their
+JSON decoder accepts at most 6,146 encoded bytes, including quotes and escape
+sequences. Both bounds are checked before invoking the caller validator or JSON
+decoder, respectively.
+
 ## UUID
 
 UUID parsing accepts canonical lowercase RFC text, RFC variant values, and

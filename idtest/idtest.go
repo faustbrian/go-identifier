@@ -8,12 +8,11 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"strings"
 	"sync"
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 )
 
 // Clock is a mutex-protected deterministic clock.
@@ -141,9 +140,8 @@ func AssertCanonical[T stringValue](t testing.TB, value T, parse func(string) (T
 	}
 }
 
-func sanitizeLogValue(value string) string {
-	value = strings.ReplaceAll(value, "\r", `\r`)
-	return strings.ReplaceAll(value, "\n", `\n`)
+func sanitizeLogValue(_ string) string {
+	return "[REDACTED]"
 }
 
 // AssertStrictlyOrdered proves each adjacent value is greater than its

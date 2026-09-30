@@ -5,11 +5,11 @@ import (
 	"encoding/hex"
 	"testing"
 
-	identifierksuid "github.com/faustbrian/go-identifier/ksuid"
-	identifiernanoid "github.com/faustbrian/go-identifier/nanoid"
-	identifiertypeid "github.com/faustbrian/go-identifier/typeid"
-	identifierulid "github.com/faustbrian/go-identifier/ulid"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifierksuid "github.com/faustbrian/go-identifier/v2/ksuid"
+	identifiernanoid "github.com/faustbrian/go-identifier/v2/nanoid"
+	identifiertypeid "github.com/faustbrian/go-identifier/v2/typeid"
+	identifierulid "github.com/faustbrian/go-identifier/v2/ulid"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 func TestPinnedCrossLanguageVectors(t *testing.T) {

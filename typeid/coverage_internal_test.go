@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier/v2"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 func TestRemainingTypeIDBoundaries(t *testing.T) {

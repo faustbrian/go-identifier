@@ -1,5 +1,9 @@
 # Documentation
 
+The current source targets
+[`github.com/faustbrian/go-identifier/v2`](https://pkg.go.dev/github.com/faustbrian/go-identifier/v2).
+The released v1 module remains a separate import path and compatibility contract.
+
 ## Getting started
 
 - [Install](../README.md#install)
@@ -18,6 +22,7 @@
 ## Operations and security
 
 - [Security](security.md)
+- [Threat model](threat-model.md)
 - [Performance](performance.md)
 - [Verification](verification.md)
 

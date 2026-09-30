@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 )
 
 func TestRootBoundaryCoverage(t *testing.T) {

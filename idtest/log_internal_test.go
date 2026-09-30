@@ -2,10 +2,10 @@ package idtest
 
 import "testing"
 
-func TestSanitizeLogValueEscapesLineBreaks(t *testing.T) {
+func TestSanitizeLogValueRedactsInput(t *testing.T) {
 	t.Parallel()
 
-	if got := sanitizeLogValue("safe\r\nforged"); got != `safe\r\nforged` {
+	if got := sanitizeLogValue("customer@example.com\r\nforged"); got != `[REDACTED]` {
 		t.Fatalf("sanitizeLogValue() = %q", got)
 	}
 }
