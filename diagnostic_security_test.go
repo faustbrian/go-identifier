@@ -175,6 +175,13 @@ func TestTypedIdentifierRejectsOversizedInputBeforeValidation(t *testing.T) {
 	if _, err := identifier.Parse[panicValidatorTag](oversizedText); !errors.Is(err, identifier.ErrInvalid) {
 		t.Fatalf("oversized typed identifier error = %v", err)
 	}
+	var id identifier.ID[panicValidatorTag]
+	if err := id.UnmarshalText([]byte(oversizedText)); !errors.Is(err, identifier.ErrInvalid) || !id.IsZero() {
+		t.Fatalf("oversized typed text = %v, %v", id, err)
+	}
+	if err := id.Scan(oversizedText); !errors.Is(err, identifier.ErrInvalid) || !id.IsZero() {
+		t.Fatalf("oversized typed SQL text = %v, %v", id, err)
+	}
 
 	oversizedJSON := []byte(`"` + strings.Repeat(`\u0078`, identifier.MaxTypedIDBytes+1) + `"`)
 	if len(oversizedJSON) <= identifier.MaxTypedIDJSONBytes {
@@ -189,9 +196,51 @@ func TestTypedIdentifierRejectsOversizedInputBeforeValidation(t *testing.T) {
 		t.Fatalf("maximum typed identifier JSON error = %v", err)
 	}
 
-	var id identifier.ID[panicValidatorTag]
 	if err := id.UnmarshalJSON(oversizedJSON); !errors.Is(err, identifier.ErrInvalid) {
 		t.Fatalf("oversized typed identifier JSON error = %v", err)
+	}
+}
+
+func TestConcreteIdentifierDecodersRejectInvalidCanonicalPayloadsWithoutMutation(t *testing.T) {
+	t.Parallel()
+
+	type decoder interface {
+		UnmarshalText([]byte) error
+		UnmarshalJSON([]byte) error
+		String() string
+	}
+	decoders := []struct {
+		name      string
+		valid     string
+		invalid   string
+		construct func() decoder
+	}{
+		{"UUID", "017f22e2-79b0-7cc3-98c4-dc0c0c07398f", strings.Repeat("!", 36), func() decoder { return new(identifieruuid.ID) }},
+		{"ULID", "01ARZ3NDEKTSV4RRFFQ69G5FAV", strings.Repeat("!", 26), func() decoder { return new(identifierulid.ID) }},
+		{"TypeID", "user_" + strings.Repeat("0", 26), strings.Repeat("!", 26), func() decoder { return new(identifiertypeid.ID) }},
+		{"KSUID", "0ujtsYcgvSTl8PAuAdqWYSMnLOv", strings.Repeat("!", 27), func() decoder { return new(identifierksuid.ID) }},
+		{"NanoID", strings.Repeat("_", identifiernanoid.DefaultSize), strings.Repeat("!", identifiernanoid.DefaultSize), func() decoder { return new(identifiernanoid.ID) }},
+	}
+	for _, test := range decoders {
+		t.Run(test.name, func(t *testing.T) {
+			textValue := test.construct()
+			if err := textValue.UnmarshalText([]byte(test.valid)); err != nil {
+				t.Fatalf("valid text: %v", err)
+			}
+			assertSafeDiagnostic(t, textValue.UnmarshalText([]byte(test.invalid)), identifier.ErrInvalid)
+			if textValue.String() != test.valid {
+				t.Fatal("invalid text changed identifier")
+			}
+
+			jsonValue := test.construct()
+			if err := jsonValue.UnmarshalJSON([]byte(`"` + test.valid + `"`)); err != nil {
+				t.Fatalf("valid JSON: %v", err)
+			}
+			assertSafeDiagnostic(t, jsonValue.UnmarshalJSON([]byte(`"`+test.invalid+`"`)), identifier.ErrInvalid)
+			if jsonValue.String() != test.valid {
+				t.Fatal("invalid JSON changed identifier")
+			}
+		})
 	}
 }
 
