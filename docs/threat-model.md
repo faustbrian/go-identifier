@@ -50,7 +50,7 @@ network, filesystem, environment, subprocess, or credential-store access.
 - Generic typed identifiers reject text above 1,024 bytes before invoking a
   validator and reject JSON above 6,146 bytes before decoding. UUID, ULID,
   TypeID, KSUID, and NanoID parsers enforce family-specific
-  canonical forms and fixed maximum lengths. Their text unmarshallers and SQL
+  canonical forms and fixed maximum lengths. Their text decoders and SQL
   scanners reject invalid lengths before conversion, and their JSON decoders
   cap the encoded input at six times the maximum text length plus two quotes.
   Slug work is capped at 250 input runes. NanoID configuration caps output at
