@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"strings"
 	"testing"
 
-	identifier "github.com/faustbrian/go-identifier"
-	identifiernanoid "github.com/faustbrian/go-identifier/nanoid"
+	identifier "github.com/faustbrian/go-identifier/v2"
+	identifiernanoid "github.com/faustbrian/go-identifier/v2/nanoid"
 )
 
 type failingReader struct{}
@@ -171,6 +173,63 @@ func TestSerializationAndPreparedCustomDecoding(t *testing.T) {
 	if err := prepared.UnmarshalText([]byte(custom)); err != nil || prepared.String() != custom {
 		t.Fatalf("prepared custom decode = %q, %v", prepared, err)
 	}
+}
+
+func TestPreparedCustomDecodingPreservesBoundedConfiguration(t *testing.T) {
+	t.Parallel()
+
+	config := identifiernanoid.Config{Alphabet: "ab", Size: 120}
+	maximum := strings.Repeat("b", config.Size)
+	oversized := maximum + "b"
+	maximumJSON := escapedJSON(maximum)
+	oversizedJSON := escapedJSON(oversized)
+
+	prepared, err := identifiernanoid.Prepare(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := prepared.UnmarshalJSON(maximumJSON); err != nil || prepared.String() != maximum {
+		t.Fatalf("maximum custom JSON decode = %q, %v", prepared, err)
+	}
+	if err := prepared.UnmarshalJSON(oversizedJSON); !errors.Is(err, identifier.ErrInvalid) || !strings.Contains(err.Error(), "JSON length is invalid") {
+		t.Fatalf("oversized custom JSON error = %v", err)
+	}
+	if prepared.Config() != config || prepared.String() != maximum {
+		t.Fatalf("failed JSON decode changed prepared state: %#v", prepared.Config())
+	}
+
+	for _, source := range []any{maximum, []byte(maximum)} {
+		if err := prepared.Scan(source); err != nil || prepared.String() != maximum {
+			t.Fatalf("maximum custom Scan(%T) = %q, %v", source, prepared, err)
+		}
+	}
+	for _, source := range []any{oversized, []byte(oversized)} {
+		if err := prepared.Scan(source); !errors.Is(err, identifier.ErrInvalid) {
+			t.Fatalf("oversized custom Scan(%T) error = %v", source, err)
+		}
+		if prepared.Config() != config || prepared.String() != maximum {
+			t.Fatalf("failed Scan(%T) changed prepared state: %#v", source, prepared.Config())
+		}
+	}
+
+	if err := prepared.UnmarshalJSON([]byte("null")); err != nil || !prepared.IsZero() || prepared.Config() != config {
+		t.Fatalf("custom JSON null = %q, %#v, %v", prepared, prepared.Config(), err)
+	}
+	if err := prepared.UnmarshalJSON(maximumJSON); err != nil || prepared.String() != maximum {
+		t.Fatalf("custom decode after null = %q, %v", prepared, err)
+	}
+}
+
+func escapedJSON(text string) []byte {
+	var encoded strings.Builder
+	encoded.Grow(len(text)*6 + 2)
+	encoded.WriteByte('"')
+	for _, character := range []byte(text) {
+		_, _ = fmt.Fprintf(&encoded, `\u%04x`, character)
+	}
+	encoded.WriteByte('"')
+
+	return []byte(encoded.String())
 }
 
 func TestDecodersRejectInvalidValuesAndHandleNull(t *testing.T) {

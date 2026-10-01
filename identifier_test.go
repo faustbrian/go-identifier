@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 )
 
 type userTag struct{}

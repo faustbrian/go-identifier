@@ -4,8 +4,22 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+### Security
+
+- Prepare `/v2` diagnostic behavior that redacts caller-controlled
+  validator, entropy, and JSON failures, SQL runtime types, and rollback clock
+  values while preserving package sentinel classifications, and bounds generic
+  and concrete identifier inputs before validation, conversion, or JSON
+  decoding. This breaking behavior belongs only on the `/v2` module path;
+  published v1 diagnostics remain unchanged.
+- Add a versioned repository threat model for identifier assets, trust
+  boundaries, hostile inputs, controls, and explicitly owned accepted risks.
+
 ### Changed
 
+- Select pgx 5.11 for PostgreSQL codecs while retaining identifier UUID
+  and text encoding and scanner validation. Custom `pgx.Rows`
+  implementations must provide the new `TypeMap()` method.
 - Review Laravel 13.x Cloud queue, concurrency context, JSON:API stub, and HTTP
   client callback-lifetime updates through
   `cdbd17f7e3257e8ae4207d3c3bef6058452d5f72`; the frozen `Str.php` source and

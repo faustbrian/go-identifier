@@ -3,7 +3,7 @@ package identifier_test
 import (
 	"fmt"
 
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 func Example() {

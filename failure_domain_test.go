@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
-	"github.com/faustbrian/go-identifier/idtest"
-	identifierksuid "github.com/faustbrian/go-identifier/ksuid"
-	identifiernanoid "github.com/faustbrian/go-identifier/nanoid"
-	identifiertypeid "github.com/faustbrian/go-identifier/typeid"
-	identifierulid "github.com/faustbrian/go-identifier/ulid"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier/v2"
+	"github.com/faustbrian/go-identifier/v2/idtest"
+	identifierksuid "github.com/faustbrian/go-identifier/v2/ksuid"
+	identifiernanoid "github.com/faustbrian/go-identifier/v2/nanoid"
+	identifiertypeid "github.com/faustbrian/go-identifier/v2/typeid"
+	identifierulid "github.com/faustbrian/go-identifier/v2/ulid"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 type chunkReader struct {

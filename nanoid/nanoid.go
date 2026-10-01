@@ -15,7 +15,7 @@ import (
 	"strings"
 	"sync"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 )
 
 const (
@@ -51,7 +51,7 @@ func (config Config) Validate() error {
 			return fmt.Errorf("%w: NanoID alphabet must use printable ASCII", identifier.ErrInvalid)
 		}
 		if seen[character] {
-			return fmt.Errorf("%w: NanoID alphabet contains duplicate %q", identifier.ErrInvalid, character)
+			return fmt.Errorf("%w: NanoID alphabet contains a duplicate byte", identifier.ErrInvalid)
 		}
 		seen[character] = true
 	}
@@ -60,7 +60,7 @@ func (config Config) Validate() error {
 	}
 	entropy := float64(config.Size) * math.Log2(float64(len(config.Alphabet)))
 	if entropy < MinimumEntropyBits {
-		return fmt.Errorf("%w: NanoID has %.1f bits; at least %d required", identifier.ErrInvalid, entropy, MinimumEntropyBits)
+		return fmt.Errorf("%w: NanoID entropy is below the minimum", identifier.ErrInvalid)
 	}
 
 	return nil
@@ -82,7 +82,7 @@ func ParseWithConfig(text string, config Config) (ID, error) {
 		return ID{}, err
 	}
 	if len(text) != config.Size {
-		return ID{}, fmt.Errorf("%w: NanoID length is %d, want %d", identifier.ErrInvalid, len(text), config.Size)
+		return ID{}, fmt.Errorf("%w: NanoID text length does not match configuration", identifier.ErrInvalid)
 	}
 	for index := range len(text) {
 		if !strings.ContainsRune(config.Alphabet, rune(text[index])) {
@@ -139,7 +139,12 @@ func (id ID) MarshalText() ([]byte, error) {
 
 // UnmarshalText validates using the prepared configuration or DefaultConfig.
 func (id *ID) UnmarshalText(text []byte) error {
-	parsed, err := ParseWithConfig(string(text), id.Config())
+	config := id.Config()
+	if len(text) != config.Size {
+		return fmt.Errorf("%w: NanoID text length does not match configuration", identifier.ErrInvalid)
+	}
+
+	parsed, err := ParseWithConfig(string(text), config)
 	if err != nil {
 		return err
 	}
@@ -171,13 +176,23 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 
 		return nil
 	}
+	config := id.Config()
+	if len(data) > config.Size*6+2 {
+		return fmt.Errorf("%w: NanoID JSON length is invalid", identifier.ErrInvalid)
+	}
 
 	var text string
 	if err := json.Unmarshal(data, &text); err != nil {
-		return fmt.Errorf("decode NanoID: %w", err)
+		return fmt.Errorf("%w: malformed NanoID JSON", identifier.ErrInvalid)
 	}
 
-	return id.UnmarshalText([]byte(text))
+	parsed, err := ParseWithConfig(text, config)
+	if err != nil {
+		return err
+	}
+	*id = parsed
+
+	return nil
 }
 
 // Value implements driver.Valuer using identifier text.
@@ -197,11 +212,17 @@ func (id *ID) Scan(src any) error {
 
 		return nil
 	case string:
-		return id.UnmarshalText([]byte(value))
+		parsed, err := ParseWithConfig(value, id.Config())
+		if err != nil {
+			return err
+		}
+		*id = parsed
+
+		return nil
 	case []byte:
 		return id.UnmarshalText(value)
 	default:
-		return fmt.Errorf("%w: cannot scan NanoID from %T", identifier.ErrInvalid, src)
+		return fmt.Errorf("%w: unsupported NanoID scan source", identifier.ErrInvalid)
 	}
 }
 
@@ -239,7 +260,7 @@ func (generator *Generator) New() (ID, error) {
 	buffer := make([]byte, generator.step)
 	for range 128 {
 		if _, err := io.ReadFull(generator.entropy, buffer); err != nil {
-			return ID{}, fmt.Errorf("%w: NanoID: %w", identifier.ErrEntropy, err)
+			return ID{}, fmt.Errorf("%w: NanoID entropy source failed", identifier.ErrEntropy)
 		}
 		for _, random := range buffer {
 			index := int(random & generator.mask)

@@ -3,7 +3,8 @@
 The root package exposes common errors, `Clock`, `Generator[T]`,
 `Inspection`, and `ID[Tag]`. A tag is a zero-value `Validator`; the generic ID
 stores canonical text and prevents assignment between different domain tags
-without reflection or runtime registration.
+without reflection or runtime registration. `MaxTypedIDBytes` and
+`MaxTypedIDJSONBytes` define the pre-validation and pre-decoding input bounds.
 
 `uuid` parses RFC UUID versions 1 through 8, generates v4 and monotonic v7, and
 supports pgx UUID values. `ulid` parses consistent uppercase or lowercase text,

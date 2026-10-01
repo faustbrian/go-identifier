@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"runtime"
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
-	identifiertypeid "github.com/faustbrian/go-identifier/typeid"
-	identifieruuid "github.com/faustbrian/go-identifier/uuid"
+	identifier "github.com/faustbrian/go-identifier/v2"
+	identifiertypeid "github.com/faustbrian/go-identifier/v2/typeid"
+	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
 func TestOfficialVectorsRoundTrip(t *testing.T) {
@@ -163,5 +164,31 @@ func TestDecodersRejectInvalidValuesAndHandleNull(t *testing.T) {
 	value, err := id.Value()
 	if err != nil || value != "00000000000000000000000000" {
 		t.Fatalf("zero Value() = %v, %v", value, err)
+	}
+}
+
+func TestUnmarshalTextBoundsBeforeConversion(t *testing.T) {
+	const minimum = "00000000000000000000000001"
+	var id identifiertypeid.ID
+	if err := id.UnmarshalText([]byte(minimum)); err != nil || id.String() != minimum {
+		t.Fatalf("minimum-length text: %q, %v", id, err)
+	}
+
+	oversized := bytes.Repeat([]byte{'x'}, 2<<20)
+	runtime.GC()
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	for range 4 {
+		if err := id.UnmarshalText(oversized); !errors.Is(err, identifier.ErrInvalid) {
+			t.Fatalf("oversized text: %v", err)
+		}
+	}
+	runtime.ReadMemStats(&after)
+	runtime.KeepAlive(oversized)
+	if allocated := after.TotalAlloc - before.TotalAlloc; allocated > 1<<20 {
+		t.Fatalf("oversized rejection allocated %d bytes; expected a bound before text conversion", allocated)
+	}
+	if id.String() != minimum {
+		t.Fatal("oversized text changed the identifier")
 	}
 }

@@ -15,11 +15,15 @@ import (
 	"sync"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 	segmentksuid "github.com/segmentio/ksuid"
 )
 
-const epoch = int64(1_400_000_000)
+const (
+	epoch            = int64(1_400_000_000)
+	textLength       = 27
+	maximumJSONBytes = textLength*6 + 2
+)
 
 // ID is an immutable KSUID. A validity bit distinguishes an unassigned value
 // from the valid all-zero KSUID.
@@ -30,13 +34,13 @@ type ID struct {
 
 // Parse accepts exactly the canonical 27-character Base62 representation.
 func Parse(text string) (ID, error) {
-	if len(text) != 27 {
-		return ID{}, fmt.Errorf("%w: KSUID length is %d", identifier.ErrInvalid, len(text))
+	if len(text) != textLength {
+		return ID{}, fmt.Errorf("%w: KSUID text length is invalid", identifier.ErrInvalid)
 	}
 
 	parsed, err := segmentksuid.Parse(text)
 	if err != nil {
-		return ID{}, fmt.Errorf("%w: decode KSUID: %w", identifier.ErrInvalid, err)
+		return ID{}, fmt.Errorf("%w: KSUID decoding failed", identifier.ErrInvalid)
 	}
 	if parsed.String() != text {
 		return ID{}, fmt.Errorf("%w: non-canonical KSUID", identifier.ErrInvalid)
@@ -92,6 +96,10 @@ func (id ID) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (id *ID) UnmarshalText(text []byte) error {
+	if len(text) != textLength {
+		return fmt.Errorf("%w: KSUID text length is invalid", identifier.ErrInvalid)
+	}
+
 	parsed, err := Parse(string(text))
 	if err != nil {
 		return err
@@ -116,7 +124,7 @@ func (id ID) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary validates a 20-byte representation.
 func (id *ID) UnmarshalBinary(data []byte) error {
 	if len(data) != 20 {
-		return fmt.Errorf("%w: KSUID binary length is %d", identifier.ErrInvalid, len(data))
+		return fmt.Errorf("%w: KSUID binary length is invalid", identifier.ErrInvalid)
 	}
 
 	var value [20]byte
@@ -142,13 +150,22 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 
 		return nil
 	}
+	if len(data) > maximumJSONBytes {
+		return fmt.Errorf("%w: KSUID JSON length is invalid", identifier.ErrInvalid)
+	}
 
 	var text string
 	if err := json.Unmarshal(data, &text); err != nil {
-		return fmt.Errorf("decode KSUID: %w", err)
+		return fmt.Errorf("%w: malformed KSUID JSON", identifier.ErrInvalid)
 	}
 
-	return id.UnmarshalText([]byte(text))
+	parsed, err := Parse(text)
+	if err != nil {
+		return err
+	}
+	*id = parsed
+
+	return nil
 }
 
 // Value implements driver.Valuer using canonical text.
@@ -168,7 +185,13 @@ func (id *ID) Scan(src any) error {
 
 		return nil
 	case string:
-		return id.UnmarshalText([]byte(value))
+		parsed, err := Parse(value)
+		if err != nil {
+			return err
+		}
+		*id = parsed
+
+		return nil
 	case []byte:
 		if len(value) == 20 {
 			return id.UnmarshalBinary(value)
@@ -176,7 +199,7 @@ func (id *ID) Scan(src any) error {
 
 		return id.UnmarshalText(value)
 	default:
-		return fmt.Errorf("%w: cannot scan KSUID from %T", identifier.ErrInvalid, src)
+		return fmt.Errorf("%w: unsupported KSUID scan source", identifier.ErrInvalid)
 	}
 }
 
@@ -216,7 +239,7 @@ func (generator *Generator) New() (ID, error) {
 		return ID{}, fmt.Errorf("%w: KSUID timestamp is outside its epoch", identifier.ErrInvalid)
 	}
 	if generator.initialized && seconds < generator.lastSecond {
-		return ID{}, fmt.Errorf("%w: KSUID moved from %d to %d", identifier.ErrClockRollback, generator.lastSecond, seconds)
+		return ID{}, fmt.Errorf("%w: KSUID clock moved backward", identifier.ErrClockRollback)
 	}
 	if generator.initialized && seconds == generator.lastSecond {
 		id := generator.last
@@ -231,7 +254,7 @@ func (generator *Generator) New() (ID, error) {
 	var value [20]byte
 	binary.BigEndian.PutUint32(value[0:4], uint32(seconds-epoch))
 	if _, err := io.ReadFull(generator.entropy, value[4:]); err != nil {
-		return ID{}, fmt.Errorf("%w: KSUID: %w", identifier.ErrEntropy, err)
+		return ID{}, fmt.Errorf("%w: KSUID entropy source failed", identifier.ErrEntropy)
 	}
 
 	id := FromBytes(value)

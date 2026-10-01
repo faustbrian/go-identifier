@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	identifier "github.com/faustbrian/go-identifier"
+	identifier "github.com/faustbrian/go-identifier/v2"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
