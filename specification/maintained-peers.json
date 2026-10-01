@@ -14,9 +14,9 @@
     },
     {
       "id": "oklog-ulid",
-      "version": "v2.1.1",
-      "source": "https://raw.githubusercontent.com/oklog/ulid/v2.1.1/ulid.go",
-      "source_sha256": "220cfbb39d1cba40c5a587a9fc8c52688cb02bd49645ef8b044c17db455b9b80",
+      "version": "v2.1.2",
+      "source": "https://raw.githubusercontent.com/oklog/ulid/v2.1.2/ulid.go",
+      "source_sha256": "0ac87350cd2a4b98b3ac8fa2de168655edf9d0f6c9b5f78850643e07e240970f",
       "observed_behavior": {
         "codec": "Agrees on canonical valid ULID bytes and overflow rejection.",
         "generation": "Exposes monotonic entropy while clock ownership and rollback classification remain caller policy."

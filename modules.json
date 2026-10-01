@@ -162,7 +162,7 @@
         "RFC 9562 UUID examples and maintained google/uuid v1.6.0 differential evidence",
         "Pinned ULID, TypeID, KSUID, and Nano ID reference vectors",
         "Complete TypeID 0.3.0 official valid and invalid corpora",
-        "Maintained oklog/ulid v2.1.1, Jetify TypeID v2.0.0-alpha.3, Segment KSUID v1.0.4, and matoous NanoID v2.1.0 peers",
+        "Maintained oklog/ulid v2.1.2, Jetify TypeID v2.0.0-alpha.3, Segment KSUID v1.0.4, and matoous NanoID v2.1.0 peers",
         "Frozen Laravel 13 and spatie/laravel-sluggable 4.0.2 English slug differential corpus"
       ],
       "provenance": [

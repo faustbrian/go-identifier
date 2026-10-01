@@ -9,7 +9,7 @@ segment-ksuid	d33724947fcfba7949906c2b1821e96a1c8d06e7	README	reference-format	h
 nanoid-reference	07a39d62d84c21af5046fe6b2ef7b3e36ee557db	README	reference-profile	https://raw.githubusercontent.com/ai/nanoid/07a39d62d84c21af5046fe6b2ef7b3e36ee557db/README.md	98e9fc81fa79162706dcad33f12ade1778bc7edd5ba5884f925a59e060be4f37	pinned
 nanoid-algorithm	07a39d62d84c21af5046fe6b2ef7b3e36ee557db	index.js	reference-algorithm	https://raw.githubusercontent.com/ai/nanoid/07a39d62d84c21af5046fe6b2ef7b3e36ee557db/index.js	506c533e028e8539386e85cf2e8cebe68496208a711e9889c2e470afcf2d00f6	pinned
 google-uuid	v1.6.0	uuid.go	maintained-peer-source	https://raw.githubusercontent.com/google/uuid/v1.6.0/uuid.go	0edec8e34c6b6fe0db31b71a29069a09ed832e3fd04ee0175916b58f2b60e5c1	pinned
-oklog-ulid	v2.1.1	ulid.go	maintained-peer-source	https://raw.githubusercontent.com/oklog/ulid/v2.1.1/ulid.go	220cfbb39d1cba40c5a587a9fc8c52688cb02bd49645ef8b044c17db455b9b80	pinned
+oklog-ulid	v2.1.2	ulid.go	maintained-peer-source	https://raw.githubusercontent.com/oklog/ulid/v2.1.2/ulid.go	0ac87350cd2a4b98b3ac8fa2de168655edf9d0f6c9b5f78850643e07e240970f	pinned
 jetify-typeid	v2.0.0-alpha.3	typeid.go	maintained-peer-source	https://raw.githubusercontent.com/jetify-com/typeid-go/v2.0.0-alpha.3/typeid.go	e375fecd30aeed221b6742a4903165b78e1ca70b20d5a03769cfbce84f7df47b	pinned
 segment-ksuid-peer	v1.0.4	ksuid.go	maintained-peer-source	https://raw.githubusercontent.com/segmentio/ksuid/v1.0.4/ksuid.go	cd1c9c4aa19296ab278fb32509e500d966006bcdfca3b440d25bd6192733ca66	pinned
 matoous-nanoid	v2.1.0	gonanoid.go	maintained-peer-source	https://raw.githubusercontent.com/matoous/go-nanoid/v2.1.0/gonanoid.go	a0269f7e656bbbe6031aee619041dd3c4c022a6ff15461c3500ec290179a43f0	pinned

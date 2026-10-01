@@ -17,6 +17,8 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
+- Select ULID v2.1.2 for ULID and TypeID parsing and canonical formatting,
+  and align the maintained-peer source identity with that dependency.
 - Keep reusable CI and its checked-out tooling on the same v1.8.4 source
   while retaining the checksum-verified v1.6.2 CLI bootstrap.
 - Select pgx 5.11 for PostgreSQL codecs while retaining identifier UUID
