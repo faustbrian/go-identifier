@@ -17,6 +17,8 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ### Changed
 
+- Keep reusable CI and its checked-out tooling on the same v1.8.4 source
+  while retaining the checksum-verified v1.6.2 CLI bootstrap.
 - Select pgx 5.11 for PostgreSQL codecs while retaining identifier UUID
   and text encoding and scanner validation. Custom `pgx.Rows`
   implementations must provide the new `TypeMap()` method.
