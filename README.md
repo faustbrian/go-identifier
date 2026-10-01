@@ -17,13 +17,13 @@ clock, entropy, ordering, leakage, and persistence contract; an identifier is
 never treated as a secret, authorization fact, idempotency proof, or tracing
 context merely because it is unique.
 
-This source targets `github.com/faustbrian/go-identifier/v2` for the breaking
-v2.0.0 release. The published v1.0.0 module remains separate; its diagnostic
-behavior is unchanged. Existing consumers must use released v1 until the
-signed v2 tag is public, then migrate their imports and module dependency
-explicitly. Do not use a local `replace` directive to consume this source as v1.
+The published v2 module is `github.com/faustbrian/go-identifier/v2`.
+The published v1.0.0 module remains separate; its diagnostic behavior is
+unchanged. Migrate imports and the module dependency explicitly when adopting
+v2. Do not use a local `replace` directive to consume this source as v1.
 
-Both major versions require Go 1.27.0 and follow semantic versioning. Identifier
+The v2 module requires Go 1.27.0; published v1.0.0 requires Go 1.26.6.
+Both major versions follow semantic versioning. Identifier
 values are stateless and copied by assignment. UUID's public array can be
 mutated by its caller; outbound encoding assumes an assigned, valid value.
 Generator instances own their synchronization and, for sortable families,
@@ -35,13 +35,13 @@ entropy through `idtest`.
 
 ## Install
 
-After the signed v2.0.0 tag is published:
+Install the published v2 module:
 
 ```sh
 go get github.com/faustbrian/go-identifier/v2@v2.0.0
 ```
 
-Until then, existing consumers remain on the released v1 module.
+Existing consumers may remain on the released v1 module until they migrate.
 
 ## Choose a family
 
