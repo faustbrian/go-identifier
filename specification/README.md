@@ -17,6 +17,39 @@ observed peer behavior without treating popularity as normative authority.
 
 ## Upstream review history
 
+### 2026-10-07
+
+All 14 declared authorities were retrieved. Pinned sources, RFC errata, and
+other feeds remain byte-identical; only the two feeds below advanced. The
+review retains all owned APIs, behavior, algorithm/source pins, and vectors.
+
+- `nanoid-reference-updates` advanced from SHA-256
+  `04181577ec5e0ac803ea289c7a750017da1fcabbd4af77ed2a1cd88f4a760808`
+  to `42849863afa046bebd96538b8ea5f1566070bdb3c645e1e38ab4fc0b2f942cf9`.
+  The reviewed range
+  `8588e3a0db022b3876a4724e25cce4961e2a47a4...3167e108865702c0539d8e552365ed840ac9d8d9`
+  contains 15 commits, including per-call customRandom byte-request sizing,
+  fractional-size handling, and an exported URL-alphabet order permutation.
+  The 64-symbol URL-safe set, default length 21, and uniform sampling remain.
+  The owned generator has an immutable integer-sized profile and no per-call
+  size override; its entropy floor rejects zero-size profiles. Its public
+  alphabet order, frozen algorithm, bounded sampling, and deterministic vector
+  remain unchanged under the Nano ID decision; latest seeded JavaScript
+  sequence equality is not claimed.
+- `laravel-framework-updates` advanced from SHA-256
+  `9ec8486ac832ed7cd2ef2f767bac5119bd7d2d681baa721a3c4229790e03cc2b`
+  to `373d308279677b33ccd99cf473034d4f77cd4476a8967d3f4426d47e87b66db3`.
+  The reviewed range
+  `cdbd17f7e3257e8ae4207d3c3bef6058452d5f72...725381d29c9fa132dfe042f8458a9ed31d27a040`
+  contains 238 commits and 551 changed files. Four commits change Str.php in
+  camel/password/start/finish/trim/rtrim behavior, but the reachable slug,
+  ascii, and lower method bodies are byte-identical. Slug uses PHP builtin
+  trim, not changed Str::trim. Stringable and Support/composer.json are also
+  byte-identical; the portable-ascii constraint remains ^2.0.2. The frozen
+  English transliteration table, source/vector pins, and outputs remain
+  unchanged under the English slug decision; arbitrary live PHP dependency
+  graphs are not certified.
+
 ### 2026-09-05
 
 - `laravel-framework-updates` advanced from SHA-256
