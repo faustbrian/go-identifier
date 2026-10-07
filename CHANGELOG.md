@@ -4,6 +4,20 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+## 2.0.2 - 2026-10-07
+
+### Changed
+
+- Refresh the shared CI workflow while retaining the configured CLI and
+  immutable tooling-source selection.
+- Record the substantive NanoID and Laravel upstream review while retaining
+  owned compatibility profiles, algorithm/source pins, and frozen vectors.
+
+### Fixed
+
+- Use the patched TOML parser in Cspell's development dependency graph to
+  prevent quadratic parsing of untrusted TOML tooling configuration.
+
 ## 2.0.1 - 2026-10-01
 
 ### Changed
