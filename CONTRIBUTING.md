@@ -2,8 +2,8 @@
 
 ## Before Editing
 
-1. Read [`AGENTS.md`](AGENTS.md) and the affected module's goals and docs.
-2. Run `make inventory` and the narrow baseline gate for the module.
+1. Read [`AGENTS.md`](AGENTS.md) and the affected package's docs.
+2. Run `go test ./...` or the affected package's narrower tests.
 3. Identify owned dependencies and reverse dependants in `modules.json`.
 4. Preserve unrelated work and generated/corpus provenance.
 
@@ -26,7 +26,9 @@ the Specification Decisions section of the pull request template. An unresolved
 interpretation or stale source pin is release-blocking; peer behavior cannot
 silently select policy.
 
-Required mutation gates must finish with zero surviving viable mutants.
+Mutation is optional local or scheduled assurance, not a required PR status.
+Confirmed behavioral and security defects still require a focused regression
+and repair; equivalent/invalid mutants retain reviewed narrow dispositions.
 
 Do not add package-local workflows, permanent replacements, machine-specific
 paths, bypass flags, broad mutation exclusions, or aggregate quality metrics
@@ -34,21 +36,45 @@ that hide a failing package.
 
 ## Verification
 
-Run during development:
+Standalone `go test ./...` runs deterministic tests, fuzz seeds and saved corpus
+regressions without sibling checkouts or ecosystem ledgers. The manifest declares
+no required services or test tags; PostgreSQL codec tests are serverless.
+
+With the checksum-pinned public verifier selected by `.golib.yaml`, use:
 
 ```bash
 make inventory
 make check
-```
-
-Before submitting a repository-wide change:
-
-```bash
 make ci
 ```
 
-The full scheduled and release gate is `make ci`. Report every unavailable or
-failing command; do not describe partial results as release-ready.
+`check` and `ci` use bounded local checks. One named root race test observes
+atomic shared-generator state and exact unique result counts across six
+families, once with a two-minute timeout; existing generation bounds remain
+unchanged. Ordinary CI consumes the public verifier rather than source-building
+it. `ci` also validates the offline specification register/history; online
+authority refresh remains explicit full assurance.
+
+Select one target for short active fuzz exploration. Optional local mutation
+selects one package; neither command is an all-change prerequisite:
+
+```bash
+GOMAXPROCS=2 go test -run '^$' -fuzz '^FuzzUUIDParse$' -fuzztime=2s -parallel=1 -timeout=2m .
+golib mutation --module . --package ./uuid
+```
+
+Parser, shared-generator, API and specification changes retain their relevant
+behavioral, race, compatibility and direct-consumer checks. Preserve the pinned
+official corpora, cross-language vectors and transliteration provenance; peer
+behavior does not silently choose specification policy.
+
+`make check-full` retains the complete full-assurance contract, all seven native
+fuzz budgets, conformance, provenance and benchmarks, and refreshes authority
+digests through `golib specification check --online`. Relevant release
+qualification remains `golib release dry-run --module .`. Select full/release
+checks for their material risk or release boundary, not every commit. Report
+unavailable, skipped and failed boundaries honestly; a local pass is not online
+authority, hosted-CI or public-release qualification.
 
 ## Adding A Module
 

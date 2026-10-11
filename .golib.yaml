@@ -1,6 +1,6 @@
 schema_version: 1
-tool_version: v1.6.2
-tool_checksums_sha256: 2a740a44fee468f042b4a66e086fc01a02d8d28877c9b1866e278102665b35ad
+tool_version: v2.1.0
+tool_checksums_sha256: 5517b5ec9872ad51546409de37b2932a90f230c673570998f8696416b149e5c6
 manifest:
   modules: modules.json
   packages: packages.json
@@ -27,6 +27,16 @@ api:
     - ./slug
     - ./idtest
 operations:
+# Shared generators must serialize state and produce every unique result.
+- module: "."
+  gate: local-test
+  steps:
+  - type: go-test
+    packages: ["."]
+    run: '^TestEverySharedGeneratorHasAtomicUniqueStateTransitions$'
+    race: true
+    count: 1
+    timeout: 2m
 - module: "."
   gate: conformance
   steps:
