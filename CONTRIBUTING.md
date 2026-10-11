@@ -26,7 +26,8 @@ the Specification Decisions section of the pull request template. An unresolved
 interpretation or stale source pin is release-blocking; peer behavior cannot
 silently select policy.
 
-Mutation is optional local or scheduled assurance, not a required PR status.
+Mutation is optional developer-local or explicitly selected full assurance,
+not a required PR status.
 Confirmed behavioral and security defects still require a focused regression
 and repair; equivalent/invalid mutants retain reviewed narrow dispositions.
 
@@ -48,7 +49,9 @@ make check
 make ci
 ```
 
-`check` and `ci` use bounded local checks. One named root race test observes
+`check` and `ci` use bounded local checks. Base-free checks execute deterministic
+fuzz seeds and available saved regressions; changed-causal PR checks select
+affected active fuzz smoke. One named root race test observes
 atomic shared-generator state and exact unique result counts across six
 families, once with a two-minute timeout; existing generation bounds remain
 unchanged. Ordinary CI consumes the public verifier rather than source-building
@@ -75,6 +78,17 @@ qualification remains `golib release dry-run --module .`. Select full/release
 checks for their material risk or release boundary, not every commit. Report
 unavailable, skipped and failed boundaries honestly; a local pass is not online
 authority, hosted-CI or public-release qualification.
+
+## Selected Assurance
+
+No periodic fuzz or mutation exploration is configured. Fixed-format parser
+and codec seeds, official/cross-language fixtures and focused manual exploration
+provide proportional input coverage; the existing named race separately checks
+shared-generator uniqueness. Repeating parser campaigns would not exercise that
+concurrency contract. Select the affected package and target when parser or codec
+behavior changes, and retain explicit full/release qualification for entropy,
+monotonic state, conformance, provenance and public-consumer risks. Scheduled
+ordinary CI remains bounded and monitors specification sources online.
 
 ## Adding A Module
 
