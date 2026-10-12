@@ -1,5 +1,12 @@
-// Package uuid implements canonical RFC 9562 UUID parsing and v4/v7
-// generation with explicitly owned entropy, clocks, and monotonic state.
+// Package uuid implements the RFC 9562 UUID profile with strict lowercase
+// parsing and explicitly owned UUIDv4 and monotonic UUIDv7 generation.
+// Start with Parse, NewV4Generator, or NewV7Generator. SQL and pgx UUID codecs
+// require no running database; the package introduces no cgo or background work.
+//
+// UUIDs are public identifiers, not credentials. Time-bearing UUIDs expose
+// timestamps, and per-generator monotonicity is not distributed uniqueness.
+// Strict text and generation policies are recorded as IDENTIFIER-UUID-DEC-001
+// and IDENTIFIER-UUID-DEC-002 in docs/specification-decisions.md.
 package uuid
 
 import (
@@ -29,10 +36,16 @@ const (
 // ID is a UUID value copied by assignment. Callers can mutate their own array
 // value; outbound encoding assumes it remains an assigned, valid UUID. Bytes
 // returns a copy rather than an alias.
+// Read-only methods may run concurrently if the array is not mutated. Decode
+// methods require a non-nil receiver and exclusive access. The zero ID is
+// unassigned; String formats its bits, but text/binary marshaling rejects it.
 type ID [16]byte
 
 // Parse accepts only canonical lowercase RFC 9562 text and versions 1 through
-// 8 using the RFC variant.
+// 8 using the RFC variant. Nil/Max UUIDs, uppercase and alternate wrappers are
+// deliberately outside this profile (IDENTIFIER-UUID-DEC-001; protected by
+// TestParseRejectsNonCanonicalAndInvalidUUIDs). Failure returns a zero ID and
+// an error wrapping identifier.ErrInvalid.
 func Parse(text string) (ID, error) {
 	if len(text) != textLength || text[8] != '-' || text[13] != '-' || text[18] != '-' || text[23] != '-' {
 		return ID{}, fmt.Errorf("%w: UUID must use canonical 8-4-4-4-12 form", identifier.ErrInvalid)
@@ -58,7 +71,8 @@ func Parse(text string) (ID, error) {
 	return validate(id)
 }
 
-// FromBytes validates a copied binary UUID value.
+// FromBytes copies and validates version 1 through 8 and the RFC variant.
+// Invalid bytes return the zero ID and an error wrapping identifier.ErrInvalid.
 func FromBytes(value [16]byte) (ID, error) { return validate(ID(value)) }
 
 func validate(id ID) (ID, error) {
@@ -108,7 +122,9 @@ func (id ID) String() string {
 // LogValue redacts the UUID from structured logs.
 func (id ID) LogValue() slog.Value { return slog.StringValue("[REDACTED]") }
 
-// Inspect reports timestamps only for UUID versions that define them.
+// Inspect extracts UTC timestamps for versions 1, 6, and 7 only. Sortable is
+// true for versions 6 and 7; it does not establish generation order or validity
+// for a caller-mutated array.
 func (id ID) Inspect() identifier.Inspection {
 	inspection := identifier.Inspection{Family: identifier.FamilyUUID, Version: id.Version()}
 
@@ -145,7 +161,8 @@ func gregorianTime(ticks uint64) time.Time {
 	return time.Unix(seconds, nanoseconds).UTC()
 }
 
-// MarshalText implements encoding.TextMarshaler.
+// MarshalText returns newly allocated canonical text, or identifier.ErrInvalid
+// when unassigned.
 func (id ID) MarshalText() ([]byte, error) {
 	if id.IsZero() {
 		return nil, fmt.Errorf("%w: zero UUID", identifier.ErrInvalid)
@@ -154,7 +171,8 @@ func (id ID) MarshalText() ([]byte, error) {
 	return []byte(id.String()), nil
 }
 
-// UnmarshalText implements encoding.TextUnmarshaler.
+// UnmarshalText parses text and replaces id only on success. Invalid input
+// wraps identifier.ErrInvalid; input bytes are not retained.
 func (id *ID) UnmarshalText(text []byte) error {
 	if len(text) != textLength {
 		return fmt.Errorf("%w: UUID text length is invalid", identifier.ErrInvalid)
@@ -169,7 +187,8 @@ func (id *ID) UnmarshalText(text []byte) error {
 	return nil
 }
 
-// MarshalBinary returns a copied 16-byte representation.
+// MarshalBinary returns a new 16-byte representation, or identifier.ErrInvalid
+// when unassigned.
 func (id ID) MarshalBinary() ([]byte, error) {
 	if id.IsZero() {
 		return nil, fmt.Errorf("%w: zero UUID", identifier.ErrInvalid)
@@ -181,7 +200,9 @@ func (id ID) MarshalBinary() ([]byte, error) {
 	return result, nil
 }
 
-// UnmarshalBinary validates a 16-byte representation.
+// UnmarshalBinary requires exactly 16 bytes and copies them on success.
+// Invalid input wraps identifier.ErrInvalid and leaves id unchanged.
+// UUID version and variant are validated by FromBytes.
 func (id *ID) UnmarshalBinary(data []byte) error {
 	if len(data) != 16 {
 		return fmt.Errorf("%w: UUID binary length is invalid", identifier.ErrInvalid)
@@ -207,7 +228,9 @@ func (id ID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(id.String())
 }
 
-// UnmarshalJSON decodes canonical UUID text and accepts null as unassigned.
+// UnmarshalJSON parses a bounded JSON string, or clears id for the exact token
+// null. Invalid input wraps identifier.ErrInvalid and leaves id unchanged.
+// Encoded input is limited to 218 bytes, including quotes and escapes.
 func (id *ID) UnmarshalJSON(data []byte) error {
 	if bytes.Equal(data, []byte("null")) {
 		*id = ID{}
@@ -232,7 +255,7 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// Value implements driver.Valuer using PostgreSQL-compatible canonical text.
+// Value returns canonical text for database/sql, or nil (SQL NULL) when unassigned.
 func (id ID) Value() (driver.Value, error) {
 	if id.IsZero() {
 		return nil, nil
@@ -241,7 +264,9 @@ func (id ID) Value() (driver.Value, error) {
 	return id.String(), nil
 }
 
-// Scan implements sql.Scanner for canonical text, raw bytes, and NULL.
+// Scan accepts canonical strings, byte slices, or nil (SQL NULL). A 16-byte
+// slice is interpreted as binary; other slices are text. Invalid input wraps
+// identifier.ErrInvalid and leaves id unchanged; nil clears id. Bytes are copied.
 func (id *ID) Scan(src any) error {
 	switch value := src.(type) {
 	case nil:
@@ -267,7 +292,8 @@ func (id *ID) Scan(src any) error {
 	}
 }
 
-// ScanUUID implements pgtype.UUIDScanner.
+// ScanUUID clears id for a pgx NULL; otherwise it validates and copies bytes.
+// Invalid version/variant wraps identifier.ErrInvalid without replacing id.
 func (id *ID) ScanUUID(value pgtype.UUID) error {
 	if !value.Valid {
 		*id = ID{}
@@ -284,7 +310,8 @@ func (id *ID) ScanUUID(value pgtype.UUID) error {
 	return nil
 }
 
-// UUIDValue implements pgtype.UUIDValuer.
+// UUIDValue returns copied bytes for pgx, or an invalid pgtype.UUID (SQL NULL)
+// when unassigned. It does not revalidate a caller-mutated array.
 func (id ID) UUIDValue() (pgtype.UUID, error) {
 	if id.IsZero() {
 		return pgtype.UUID{}, nil
@@ -293,8 +320,12 @@ func (id ID) UUIDValue() (pgtype.UUID, error) {
 	return pgtype.UUID{Bytes: id.Bytes(), Valid: true}, nil
 }
 
-// V4Generator owns its entropy source. Caller-provided readers are serialized;
-// the concurrency-safe crypto/rand.Reader default is used directly.
+// V4Generator generates UUIDv4 values and is safe for concurrent New calls when
+// constructed with NewV4Generator. Each Read of a caller-provided reader is
+// serialized; the concurrency-safe crypto/rand.Reader default is used directly.
+// The zero value is not ready for use. The reader is borrowed, never closed;
+// sharing it outside this generator requires caller-owned synchronization.
+// A custom reader must not reenter this generator while its Read lock is held.
 type V4Generator struct {
 	entropy io.Reader
 }
@@ -309,7 +340,9 @@ func NewV4Generator(entropy io.Reader) *V4Generator {
 	return &V4Generator{entropy: &lockedReader{reader: entropy}}
 }
 
-// New generates a UUIDv4.
+// New reads 16 entropy bytes and sets the RFC 9562 section 5.4 version/variant.
+// Reader failures return a zero ID and identifier.ErrEntropy, hiding the cause.
+// It can block on the reader and provides no cancellation or timeout.
 func (generator *V4Generator) New() (ID, error) {
 	var id ID
 	if _, err := io.ReadFull(generator.entropy, id[:]); err != nil {
@@ -333,7 +366,12 @@ func (reader *lockedReader) Read(destination []byte) (int, error) {
 	return reader.reader.Read(destination)
 }
 
-// V7Generator owns a clock, entropy source, mutex, and monotonic state.
+// V7Generator serializes New calls and owns the resulting monotonic sequence.
+// Construct it with NewV7Generator; its zero value is not ready for use and it
+// must not be copied after first use. Clock and entropy are borrowed, not closed.
+// They run under the generator lock, must not reenter it, and need their own
+// synchronization if shared outside this generator. No cross-instance or
+// cross-process uniqueness is guaranteed.
 type V7Generator struct {
 	mutex       sync.Mutex
 	clock       identifier.Clock
@@ -356,8 +394,13 @@ func NewV7Generator(clock identifier.Clock, entropy io.Reader) *V7Generator {
 	return &V7Generator{clock: clock, entropy: entropy}
 }
 
-// New generates a UUIDv7. Same-millisecond calls increment the random field;
-// rollback and exhaustion are reported rather than hidden.
+// New generates an RFC 9562 section 5.7 UUIDv7. A new millisecond reads fresh
+// entropy; same-millisecond calls increment the 74-bit random field, revealing
+// local issuance order. Invalid 48-bit Unix milliseconds, rollback, exhausted
+// sequence space, and reader failures return a zero ID with identifier.ErrInvalid,
+// ErrClockRollback, ErrOverflow, or ErrEntropy respectively. Failed calls do not
+// advance the committed sequence, but may consume entropy. The clock and reader
+// can block; New provides no cancellation or timeout.
 func (generator *V7Generator) New() (ID, error) {
 	generator.mutex.Lock()
 	defer generator.mutex.Unlock()
@@ -403,6 +446,10 @@ func (generator *V7Generator) New() (ID, error) {
 	return id, nil
 }
 
+// RFC 9562 section 6.2 permits monotonic counters. Carry skips the version and
+// variant bits, preserving all 74 payload bits (IDENTIFIER-UUID-DEC-002;
+// TestV7GenerationAcceptsTimestampAndCarryBoundaries). The caller increments a
+// copy so exhaustion cannot corrupt the last successfully issued UUID.
 func incrementV7(id *ID) bool {
 	for position := 15; position >= 9; position-- {
 		id[position]++

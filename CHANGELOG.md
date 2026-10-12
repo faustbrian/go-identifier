@@ -4,6 +4,12 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+### Documentation
+
+- Clarify typed-ID zero-value decoding, family codec failure/NULL behavior,
+  custom NanoID configuration retention, and per-instance generator blocking,
+  ownership, ordering, and entropy limits without changing runtime behavior.
+
 ## 2.0.2 - 2026-10-07
 
 ### Changed

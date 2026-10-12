@@ -1,4 +1,11 @@
-// Package identifier defines contracts shared by concrete identifier families.
+// Package identifier defines typed domain IDs and contracts shared by UUID,
+// ULID, TypeID, KSUID, and NanoID families. Start with Parse and a zero-value
+// Validator, or use a family package for generation and family-specific codecs.
+//
+// The package does not coordinate uniqueness, authorize access, or supply
+// distributed idempotency. It starts no background work and requires no cgo or
+// service. Values may be read concurrently; callers must synchronize decoding
+// into a shared value. Validation and clock callbacks remain caller-owned.
 package identifier
 
 import (
@@ -13,7 +20,8 @@ import (
 var (
 	// ErrInvalid reports malformed, non-canonical, or disallowed input.
 	ErrInvalid = errors.New("invalid identifier")
-	// ErrEntropy reports failure while acquiring random bytes.
+	// ErrEntropy reports an entropy read failure or an exhausted rejection budget.
+	// Underlying reader errors are deliberately not retained in the error chain.
 	ErrEntropy = errors.New("identifier entropy failure")
 	// ErrClockRollback reports a clock moving behind supported generator state.
 	ErrClockRollback = errors.New("identifier clock rollback")
@@ -30,35 +38,52 @@ const (
 	MaxTypedIDJSONBytes = MaxTypedIDBytes*6 + 2
 )
 
-// Clock is an explicitly owned time source.
+// Clock supplies the time observed by a generator. Implementations need not be
+// monotonic: time-ordered generators detect rollback at their time resolution.
+// A clock shared outside one generator must provide its own synchronization.
 type Clock interface {
+	// Now returns the current instant. It must not reenter the calling generator.
 	Now() time.Time
 }
 
-// ClockFunc adapts a function to Clock.
+// ClockFunc adapts a non-nil function to Clock without adding synchronization.
 type ClockFunc func() time.Time
 
 // Now calls the underlying function.
 func (clock ClockFunc) Now() time.Time { return clock() }
 
-// Generator produces identifiers without relying on package-global mutable state.
+// Generator is the common generation entry point. It does not, by itself,
+// promise concurrency safety, ordering, or uniqueness across instances;
+// consumers must use the concrete generator's contract.
 type Generator[T any] interface {
+	// New returns a generated value or an error. Callers must not use the value
+	// on failure; blocking and error classifications depend on the family.
 	New() (T, error)
 }
 
 // Validator validates the canonical text used by a typed ID. Implementations
 // must be usable as their zero value so decoding never needs registration.
+// Validate is called synchronously with bounded nonempty text; it must establish
+// any family or domain policy that the tag requires. Concurrent parses may call
+// it concurrently, so any state outside the zero-value tag must be synchronized.
 type Validator interface {
+	// Validate returns nil only for accepted canonical text. Its error details
+	// and cause are hidden behind ErrInvalid; panics are not recovered.
 	Validate(string) error
 }
 
 // ID is a strongly typed canonical identifier. Different Tag arguments are
 // distinct Go types and cannot be mixed without an explicit conversion.
+// Its zero value is unassigned. Text/binary/JSON marshaling allows that zero
+// value, but parsing or decoding empty text rejects it; SQL NULL clears it.
+// Unmarshal and Scan methods require a non-nil, exclusively owned receiver.
 type ID[Tag Validator] struct {
 	text string
 }
 
-// Parse validates canonical text for Tag after enforcing MaxTypedIDBytes.
+// Parse checks nonempty text and MaxTypedIDBytes before calling Tag's zero-value
+// Validate method. It preserves accepted text without normalization. Failure
+// returns the zero ID and an error wrapping ErrInvalid, not the validator error.
 func Parse[Tag Validator](text string) (ID[Tag], error) {
 	var tag Tag
 
@@ -98,10 +123,10 @@ func (id ID[Tag]) Compare(other ID[Tag]) int {
 	return 0
 }
 
-// MarshalText implements encoding.TextMarshaler.
+// MarshalText returns a new slice of canonical text, empty when unassigned.
 func (id ID[Tag]) MarshalText() ([]byte, error) { return []byte(id.text), nil }
 
-// UnmarshalText implements encoding.TextUnmarshaler.
+// UnmarshalText validates copied text through Parse and replaces id only on success.
 func (id *ID[Tag]) UnmarshalText(text []byte) error {
 	if len(text) > MaxTypedIDBytes {
 		return fmt.Errorf("%w: typed ID text length is invalid", ErrInvalid)
@@ -120,14 +145,15 @@ func (id *ID[Tag]) UnmarshalText(text []byte) error {
 // MarshalBinary uses canonical text so typed values remain family-neutral.
 func (id ID[Tag]) MarshalBinary() ([]byte, error) { return id.MarshalText() }
 
-// UnmarshalBinary validates canonical text.
+// UnmarshalBinary has the same validation and receiver semantics as UnmarshalText.
 func (id *ID[Tag]) UnmarshalBinary(data []byte) error { return id.UnmarshalText(data) }
 
-// MarshalJSON encodes the canonical identifier as a JSON string.
+// MarshalJSON encodes text as a JSON string, including "" for an unassigned ID.
 func (id ID[Tag]) MarshalJSON() ([]byte, error) { return json.Marshal(id.text) }
 
 // UnmarshalJSON decodes and validates a canonical JSON string no larger than
-// MaxTypedIDJSONBytes.
+// MaxTypedIDJSONBytes. Empty strings and null are invalid. Errors wrap
+// ErrInvalid and leave id unchanged; JSON parser diagnostics are not exposed.
 func (id *ID[Tag]) UnmarshalJSON(data []byte) error {
 	if len(data) > MaxTypedIDJSONBytes {
 		return fmt.Errorf("%w: typed ID JSON length is invalid", ErrInvalid)
@@ -150,7 +176,9 @@ func (id ID[Tag]) Value() (driver.Value, error) {
 	return id.text, nil
 }
 
-// Scan implements sql.Scanner for strings, byte slices, and NULL.
+// Scan accepts strings or text byte slices through Parse; nil clears id.
+// Other sources and invalid text return ErrInvalid without replacing id.
+// Accepted bytes are not retained.
 func (id *ID[Tag]) Scan(src any) error {
 	switch value := src.(type) {
 	case nil:
@@ -176,7 +204,7 @@ func (id *ID[Tag]) Scan(src any) error {
 type Family string
 
 const (
-	// FamilyUUID identifies RFC UUID values.
+	// FamilyUUID identifies UUID values in the RFC 9562 profile.
 	FamilyUUID Family = "uuid"
 	// FamilyULID identifies canonical ULID values.
 	FamilyULID Family = "ulid"
@@ -190,9 +218,16 @@ const (
 
 // Inspection exposes only properties actually defined by an identifier family.
 type Inspection struct {
-	Family    Family
-	Version   int
+	// Family identifies the representation inspected, even for a zero value.
+	Family Family
+	// Version is the UUID version nibble for UUIDs or TypeID suffixes;
+	// it is zero for families that do not define a UUID version.
+	Version int
+	// Timestamp is the embedded UTC instant, meaningful only when HasTime is true.
 	Timestamp time.Time
-	HasTime   bool
-	Sortable  bool
+	// HasTime reports whether this value exposes a recognized timestamp.
+	HasTime bool
+	// Sortable reports the family's ordering capability, not global issuance
+	// order, uniqueness, or necessarily the presence of a timestamp.
+	Sortable bool
 }

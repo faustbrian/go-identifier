@@ -43,11 +43,13 @@ reveals local issuance order. The random starting payload remains 128 bits.
 ## NanoID
 
 NanoID has no time or generation-order guarantee. Configurations use 2 through
-255 unique printable ASCII bytes and must provide at least 120 ideal entropy
-bits. Rejection sampling prevents modulo bias. Collision probability still
+94 unique printable ASCII bytes (0x21 through 0x7e) and must provide at least
+120 ideal entropy bits. Rejection sampling prevents modulo bias. Collision probability still
 depends on total generated values; 120 bits is a floor, not a proof that a
 collision cannot happen.
 
-All shared generators use a mutex. Distinct generator instances have distinct
-monotonic domains and can interleave when sorted. No generator coordinates
-across processes.
+Shared monotonic generators and NanoID generators serialize calls with a mutex.
+UUIDv4 uses the concurrency-safe default crypto/rand.Reader directly; custom
+UUIDv4 reader calls are serialized. Distinct monotonic generator instances have
+distinct ordering domains and can interleave when sorted. No generator
+coordinates across processes.

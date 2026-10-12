@@ -18,6 +18,9 @@ import (
 	jetifytypeid "go.jetify.com/typeid/v2"
 )
 
+// BenchmarkGeneration compares default-entropy generation with maintained peers.
+// Generator setup is outside the measured loop; monotonic and independent-random
+// policies are different workloads, so timings are not interchangeable guarantees.
 func BenchmarkGeneration(b *testing.B) {
 	b.Run("UUIDv4/identifier", func(b *testing.B) {
 		generator := identifieruuid.NewV4Generator(nil)
@@ -76,6 +79,8 @@ func BenchmarkGeneration(b *testing.B) {
 	})
 }
 
+// BenchmarkParsing measures successful parsing of fixed canonical family values.
+// It does not measure hostile-input rejection or decoding a distribution of sizes.
 func BenchmarkParsing(b *testing.B) {
 	benchmarks := []struct {
 		name  string
@@ -99,7 +104,7 @@ func BenchmarkParsing(b *testing.B) {
 }
 
 func ExampleID() {
-	// Domain tags validate canonical family text without reflection or a
-	// runtime registry. See the package documentation for a complete tag.
+	// This compile-only example shows the concrete UUID generator satisfying
+	// the root generic contract; it does not generate or validate a domain ID.
 	var _ identifier.Generator[identifieruuid.ID] = identifieruuid.NewV4Generator(nil)
 }

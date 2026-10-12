@@ -1,6 +1,10 @@
 // Package idtest provides deterministic clocks, entropy, and reusable
 // identifier assertions. Its sources are for tests and must not be used for
-// production identifier generation.
+// production identifier generation. Start with NewClock and NewReader to inject
+// reproducible sources, then AssertUnique or AssertCanonical for contract checks.
+// Sources are concurrency-safe but concurrent scheduling can change which caller
+// gets each byte or instant. The package starts no background work and requires
+// no service or cgo; it does not simulate distributed uniqueness.
 package idtest
 
 import (
@@ -15,7 +19,8 @@ import (
 	identifier "github.com/faustbrian/go-identifier/v2"
 )
 
-// Clock is a mutex-protected deterministic clock.
+// Clock is a concurrency-safe deterministic clock. Its zero value reports
+// time.Time{}; it must not be copied after first use.
 type Clock struct {
 	mutex sync.RWMutex
 	now   time.Time
@@ -50,7 +55,8 @@ func (clock *Clock) Advance(duration time.Duration) {
 }
 
 // Reader expands a seed and counter with SHA-256 for reproducible test bytes.
-// It is deterministic, not a cryptographic entropy source.
+// It is deterministic, not a cryptographic entropy source. Read is safe for
+// concurrent calls; the zero value uses an empty seed. Do not copy after first use.
 type Reader struct {
 	mutex   sync.Mutex
 	seed    []byte
@@ -58,7 +64,8 @@ type Reader struct {
 	buffer  []byte
 }
 
-// NewReader copies a deterministic seed.
+// NewReader copies seed, accepting nil as an empty seed. Equal seeds produce
+// equal byte streams regardless of how sequential reads are divided.
 func NewReader(seed []byte) *Reader {
 	copied := make([]byte, len(seed))
 	copy(copied, seed)
@@ -92,11 +99,14 @@ type failingReader struct{ err error }
 
 func (reader failingReader) Read([]byte) (int, error) { return 0, reader.err }
 
-// ErrorReader returns an entropy source that always reports err.
+// ErrorReader returns a reader that always returns zero bytes and err without
+// modifying the destination. Supply a non-nil error: nil would produce a
+// non-progressing reader rather than a failure.
 func ErrorReader(err error) io.Reader { return failingReader{err: err} }
 
 // AssertUnique generates count values, fails on errors or collisions, and
-// returns the generated sequence for additional assertions.
+// returns the generated sequence for additional assertions. Count must be
+// nonnegative; generation is sequential and Go equality defines a collision.
 func AssertUnique[T comparable](t testing.TB, generator identifier.Generator[T], count int) []T {
 	t.Helper()
 
@@ -122,7 +132,8 @@ type stringValue interface {
 	fmt.Stringer
 }
 
-// AssertCanonical proves formatting parses back to the identical value.
+// AssertCanonical checks that parse(value.String()) yields an equal value using
+// Go equality. Parse must be non-nil; failed diagnostics redact text and errors.
 func AssertCanonical[T stringValue](t testing.TB, value T, parse func(string) (T, error)) {
 	t.Helper()
 
@@ -145,7 +156,8 @@ func sanitizeLogValue(_ string) string {
 }
 
 // AssertStrictlyOrdered proves each adjacent value is greater than its
-// predecessor under compare.
+// predecessor under compare. Compare must be non-nil when there is an adjacent
+// pair; zero or one value passes without invoking it.
 func AssertStrictlyOrdered[T any](t testing.TB, values []T, compare func(T, T) int) {
 	t.Helper()
 

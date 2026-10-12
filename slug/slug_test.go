@@ -116,6 +116,8 @@ func TestLaravelEnglishIsSafeForConcurrentUse(t *testing.T) {
 	}
 }
 
+// FuzzLaravelEnglish accepts arbitrary bytes, including malformed UTF-8, and
+// checks deterministic ASCII output with no boundary or repeated separators.
 func FuzzLaravelEnglish(f *testing.F) {
 	for _, seed := range []string{
 		"Åland Post",

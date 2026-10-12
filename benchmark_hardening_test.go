@@ -21,6 +21,9 @@ import (
 
 var benchmarkStringSink string
 
+// BenchmarkComparativeParsing compares successful parsing of the same
+// canonical values;
+// strict owned profiles and permissive peer parsers need not reject the same inputs.
 func BenchmarkComparativeParsing(b *testing.B) {
 	tests := []struct {
 		name  string
@@ -75,6 +78,9 @@ func BenchmarkComparativeParsing(b *testing.B) {
 	}
 }
 
+// BenchmarkComparativeFormatting compares String calls on pre-parsed
+// matching values.
+// Parsing/setup is excluded; returned strings remain observable through a sink.
 func BenchmarkComparativeFormatting(b *testing.B) {
 	uuidOurs, _ := identifieruuid.Parse("017f22e2-79b0-7cc3-98c4-dc0c0c07398f")
 	uuidTheirs, _ := googleuuid.Parse("017f22e2-79b0-7cc3-98c4-dc0c0c07398f")
@@ -107,6 +113,9 @@ func BenchmarkComparativeFormatting(b *testing.B) {
 	}
 }
 
+// BenchmarkComparativeSorting sorts the same 1024 reverse-ordered payloads in each
+// representation. Generation/conversion is excluded; restoring the working slice
+// for each measured sort is included.
 func BenchmarkComparativeSorting(b *testing.B) {
 	instant := time.Date(2026, 7, 20, 0, 0, 0, 0, time.UTC)
 	const count = 1024
@@ -155,6 +164,10 @@ func BenchmarkComparativeSorting(b *testing.B) {
 	})
 }
 
+// BenchmarkDatabaseLocalityProxy searches pre-sorted 4096-key sets in
+// issuance order.
+// Generation/sorting is excluded; this is a CPU search-locality proxy, not a
+// database insertion, index, collation, or PostgreSQL performance measurement.
 func BenchmarkDatabaseLocalityProxy(b *testing.B) {
 	instant := time.Date(2026, 7, 20, 0, 0, 0, 0, time.UTC)
 	const count = 4096
@@ -177,6 +190,10 @@ func BenchmarkDatabaseLocalityProxy(b *testing.B) {
 	benchmarkSearchInsertPosition(b, "KSUID/ordered", orderedKSUIDs)
 }
 
+// BenchmarkNanoIDGenerationAgainstMaintainedImplementation compares default
+// crypto-entropy
+// generation plus String output. Setup is excluded; matching size and alphabet
+// sets do not imply identical entropy buffering or lock costs.
 func BenchmarkNanoIDGenerationAgainstMaintainedImplementation(b *testing.B) {
 	b.Run("identifier", func(b *testing.B) {
 		generator, _ := identifiernanoid.NewGenerator(identifiernanoid.DefaultConfig(), nil)

@@ -1,5 +1,12 @@
-// Package ksuid implements canonical, interoperable KSUIDs with explicitly
-// owned clock, entropy, and optional same-second monotonic state.
+// Package ksuid implements the pinned Segment KSUID format at revision
+// d33724947fcfba7949906c2b1821e96a1c8d06e7: 20-byte values and 27-byte Base62
+// text. Start with Parse or NewGenerator. The package requires no service or
+// cgo and starts no background work.
+//
+// Generation is monotonic within one instance, unlike independent-random
+// Segment generation. It reveals seconds and local issuance order, not global
+// ordering or authorization. IDENTIFIER-KSUID-DEC-001 in
+// docs/specification-decisions.md records this wire-compatible policy.
 package ksuid
 
 import (
@@ -27,12 +34,17 @@ const (
 
 // ID is an immutable KSUID. A validity bit distinguishes an unassigned value
 // from the valid all-zero KSUID.
+// Read-only methods may run concurrently. Decode methods require a non-nil
+// receiver and exclusive access; they leave it unchanged on invalid input.
 type ID struct {
 	value [20]byte
 	valid bool
 }
 
 // Parse accepts exactly the canonical 27-character Base62 representation.
+// Failure returns the zero ID with identifier.ErrInvalid. Re-encoding checks
+// the pinned Segment format's canonical representation (IDENTIFIER-KSUID-DEC-001;
+// TestReferenceVectorAndDifferentialParsing).
 func Parse(text string) (ID, error) {
 	if len(text) != textLength {
 		return ID{}, fmt.Errorf("%w: KSUID text length is invalid", identifier.ErrInvalid)
@@ -49,7 +61,8 @@ func Parse(text string) (ID, error) {
 	return ID{value: [20]byte(parsed), valid: true}, nil
 }
 
-// FromBytes copies a 20-byte KSUID representation.
+// FromBytes copies any 20-byte representation as assigned, including all-zero
+// bytes, which are distinct from the unassigned Go zero value.
 func FromBytes(value [20]byte) ID { return ID{value: value, valid: true} }
 
 // Bytes returns a copy of the KSUID representation.
@@ -58,7 +71,8 @@ func (id ID) Bytes() [20]byte { return id.value }
 // IsZero reports whether no KSUID has been assigned.
 func (id ID) IsZero() bool { return !id.valid }
 
-// Compare returns -1, 0, or 1 according to binary ordering.
+// Compare returns -1, 0, or 1 according to binary ordering, ignoring assignment.
+// An unassigned value compares equal to the assigned all-zero KSUID.
 func (id ID) Compare(other ID) int { return bytes.Compare(id.value[:], other.value[:]) }
 
 // String returns canonical Base62 text, or empty text when unassigned.
@@ -85,7 +99,8 @@ func (id ID) Inspect() identifier.Inspection {
 	return inspection
 }
 
-// MarshalText implements encoding.TextMarshaler.
+// MarshalText returns newly allocated canonical text, or identifier.ErrInvalid
+// when unassigned.
 func (id ID) MarshalText() ([]byte, error) {
 	if !id.valid {
 		return nil, fmt.Errorf("%w: unassigned KSUID", identifier.ErrInvalid)
@@ -94,7 +109,8 @@ func (id ID) MarshalText() ([]byte, error) {
 	return []byte(id.String()), nil
 }
 
-// UnmarshalText implements encoding.TextUnmarshaler.
+// UnmarshalText parses text and replaces id only on success. Invalid input
+// wraps identifier.ErrInvalid; input bytes are not retained.
 func (id *ID) UnmarshalText(text []byte) error {
 	if len(text) != textLength {
 		return fmt.Errorf("%w: KSUID text length is invalid", identifier.ErrInvalid)
@@ -109,7 +125,8 @@ func (id *ID) UnmarshalText(text []byte) error {
 	return nil
 }
 
-// MarshalBinary returns a copied 20-byte representation.
+// MarshalBinary returns a new 20-byte representation, or identifier.ErrInvalid
+// when unassigned.
 func (id ID) MarshalBinary() ([]byte, error) {
 	if !id.valid {
 		return nil, fmt.Errorf("%w: unassigned KSUID", identifier.ErrInvalid)
@@ -121,7 +138,9 @@ func (id ID) MarshalBinary() ([]byte, error) {
 	return result, nil
 }
 
-// UnmarshalBinary validates a 20-byte representation.
+// UnmarshalBinary requires exactly 20 bytes and copies them on success.
+// Invalid input wraps identifier.ErrInvalid and leaves id unchanged.
+// Every bit pattern, including all-zero bytes, is an assigned value.
 func (id *ID) UnmarshalBinary(data []byte) error {
 	if len(data) != 20 {
 		return fmt.Errorf("%w: KSUID binary length is invalid", identifier.ErrInvalid)
@@ -143,7 +162,9 @@ func (id ID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(id.String())
 }
 
-// UnmarshalJSON decodes canonical text and accepts null as unassigned.
+// UnmarshalJSON parses a bounded JSON string, or clears id for the exact token
+// null. Invalid input wraps identifier.ErrInvalid and leaves id unchanged.
+// Encoded input is limited to 164 bytes, including quotes and escapes.
 func (id *ID) UnmarshalJSON(data []byte) error {
 	if bytes.Equal(data, []byte("null")) {
 		*id = ID{}
@@ -168,7 +189,7 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// Value implements driver.Valuer using canonical text.
+// Value returns canonical text for database/sql, or nil (SQL NULL) when unassigned.
 func (id ID) Value() (driver.Value, error) {
 	if !id.valid {
 		return nil, nil
@@ -177,7 +198,9 @@ func (id ID) Value() (driver.Value, error) {
 	return id.String(), nil
 }
 
-// Scan implements sql.Scanner for text, binary bytes, and NULL.
+// Scan accepts canonical strings, byte slices, or nil (SQL NULL). A 20-byte
+// slice is interpreted as binary; other slices are text. Invalid input wraps
+// identifier.ErrInvalid and leaves id unchanged; nil clears id. Bytes are copied.
 func (id *ID) Scan(src any) error {
 	switch value := src.(type) {
 	case nil:
@@ -203,10 +226,13 @@ func (id *ID) Scan(src any) error {
 	}
 }
 
-// Generator owns a clock, entropy source, mutex, and monotonic state. Within a
+// Generator serializes New calls and owns a monotonic sequence. Within a
 // second, it increments the initial random payload; this leaks local issuance
 // order and differs from independent-random KSUID generation while preserving
-// wire interoperability.
+// wire interoperability. Construct it with NewGenerator; its zero value is not
+// ready for use and it must not be copied after first use. Clock/entropy are
+// borrowed, never closed, and called under the lock. They must not reenter the
+// generator and need their own synchronization if shared elsewhere.
 type Generator struct {
 	mutex       sync.Mutex
 	clock       identifier.Clock
@@ -229,7 +255,12 @@ func NewGenerator(clock identifier.Clock, entropy io.Reader) *Generator {
 	return &Generator{clock: clock, entropy: entropy}
 }
 
-// New generates a KSUID and reports rollback or payload exhaustion.
+// New draws fresh 128-bit payload entropy on a new second and increments it
+// within that second. Failure returns a zero ID: identifier.ErrInvalid for time
+// outside Unix seconds [1400000000, 1400000000+2^32-1], ErrClockRollback for
+// rollback, ErrOverflow for payload exhaustion, and ErrEntropy for reader errors.
+// Failed calls preserve committed state but may consume entropy. Clock/reader
+// calls can block without cancellation; ordering and uniqueness are not global.
 func (generator *Generator) New() (ID, error) {
 	generator.mutex.Lock()
 	defer generator.mutex.Unlock()
@@ -265,6 +296,10 @@ func (generator *Generator) New() (ID, error) {
 	return id, nil
 }
 
+// This package's Segment-compatible policy increments only the 128-bit payload,
+// not the 32-bit epoch offset (IDENTIFIER-KSUID-DEC-001;
+// TestGeneratorAcceptsTimestampAndCarryBoundaries). Work on a copy so exhaustion
+// cannot replace the last successfully issued value.
 func increment(value *[20]byte) bool {
 	for position := 19; position >= 4; position-- {
 		value[position]++

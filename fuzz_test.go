@@ -14,6 +14,8 @@ import (
 	identifieruuid "github.com/faustbrian/go-identifier/v2/uuid"
 )
 
+// FuzzUUIDParse accepts arbitrary text and requires successful strict UUID
+// parsing to preserve it.
 func FuzzUUIDParse(f *testing.F) {
 	f.Add("017f22e2-79b0-7cc3-98c4-dc0c0c07398f")
 	f.Add("")
@@ -25,6 +27,8 @@ func FuzzUUIDParse(f *testing.F) {
 	})
 }
 
+// FuzzULIDParse accepts arbitrary text and checks round trips in the
+// accepted consistent case.
 func FuzzULIDParse(f *testing.F) {
 	f.Add("01ARZ3NDEKTSV4RRFFQ69G5FAV")
 	f.Add("01arz3ndektsv4rrffq69g5fav")
@@ -41,6 +45,8 @@ func FuzzULIDParse(f *testing.F) {
 	})
 }
 
+// FuzzTypeIDParse accepts arbitrary text and requires successful TypeID
+// parsing to preserve it.
 func FuzzTypeIDParse(f *testing.F) {
 	f.Add("prefix_01h455vb4pex5vsknk084sn02q")
 	f.Add("")
@@ -52,6 +58,8 @@ func FuzzTypeIDParse(f *testing.F) {
 	})
 }
 
+// FuzzKSUIDParse accepts arbitrary text and requires successful KSUID
+// parsing to preserve it.
 func FuzzKSUIDParse(f *testing.F) {
 	f.Add("0ujtsYcgvSTl8PAuAdqWYSMnLOv")
 	f.Add("")
@@ -63,6 +71,8 @@ func FuzzKSUIDParse(f *testing.F) {
 	})
 }
 
+// FuzzNanoIDParse accepts arbitrary text and checks the default
+// fixed-alphabet text round trip.
 func FuzzNanoIDParse(f *testing.F) {
 	f.Add("_____________________")
 	f.Add("")
@@ -74,6 +84,9 @@ func FuzzNanoIDParse(f *testing.F) {
 	})
 }
 
+// FuzzBinaryAndJSONCodecs feeds arbitrary bytes to every family and typed-ID
+// codec; accepted values
+// must survive canonical re-encoding without changing Go equality.
 func FuzzBinaryAndJSONCodecs(f *testing.F) {
 	f.Add(uint8(0), []byte("017f22e2-79b0-7cc3-98c4-dc0c0c07398f"))
 	f.Add(uint8(1), []byte("01ARZ3NDEKTSV4RRFFQ69G5FAV"))

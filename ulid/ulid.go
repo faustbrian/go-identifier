@@ -1,5 +1,12 @@
-// Package ulid implements canonical ULIDs with explicitly owned monotonic
-// generation state compatible with existing 26-character ULID storage.
+// Package ulid implements the pinned ULID specification at revision
+// d0c7170df4517939e70129b4d6462cc162f2d5bf, with consistent-case parsing,
+// uppercase canonical output, and per-generator millisecond monotonicity.
+// Start with Parse or NewGenerator; StringLower supports existing lowercase
+// storage. The package requires no service or cgo and starts no background work.
+//
+// ULIDs expose time and local issuance order, not distributed uniqueness or
+// authorization. Case and rollback policies are IDENTIFIER-ULID-DEC-001/002 in
+// docs/specification-decisions.md.
 package ulid
 
 import (
@@ -27,13 +34,19 @@ const (
 
 // ID is an immutable ULID. The validity bit distinguishes an unassigned Go
 // zero value from the valid all-zero ULID.
+// Read-only methods may run concurrently. Decode methods require a non-nil
+// receiver and exclusive access; they leave it unchanged on invalid input.
 type ID struct {
 	value [16]byte
 	valid bool
 }
 
 // Parse accepts a consistently uppercase or lowercase Crockford Base32 ULID.
-// Mixed-case text and ambiguous Crockford characters are rejected.
+// Mixed-case text and ambiguous Crockford characters are rejected. Output is
+// uppercase. Failure returns the zero ID with identifier.ErrInvalid.
+// The pinned ULID specification's overflow/canonical-string rules and the
+// Laravel case policy are IDENTIFIER-ULID-DEC-001; protected by
+// TestParserAcceptsLowercaseLaravelStorageAndRejectsMixedCase.
 func Parse(text string) (ID, error) {
 	if len(text) != textLength {
 		return ID{}, fmt.Errorf("%w: ULID text length is invalid", identifier.ErrInvalid)
@@ -66,7 +79,8 @@ func stringsContainsByte(text string, target byte) bool {
 	return false
 }
 
-// FromBytes copies a valid 128-bit ULID representation.
+// FromBytes copies any 128-bit representation as an assigned ULID, including
+// all-zero bytes, which are distinct from the unassigned Go zero value.
 func FromBytes(value [16]byte) ID { return ID{value: value, valid: true} }
 
 // Bytes returns a copy of the binary representation.
@@ -75,10 +89,11 @@ func (id ID) Bytes() [16]byte { return id.value }
 // IsZero reports whether no ULID has been assigned.
 func (id ID) IsZero() bool { return !id.valid }
 
-// Compare returns -1, 0, or 1 according to ULID binary ordering.
+// Compare returns -1, 0, or 1 according to ULID binary ordering, ignoring the
+// assignment flag. An unassigned value compares equal to the assigned all-zero ULID.
 func (id ID) Compare(other ID) int { return bytes.Compare(id.value[:], other.value[:]) }
 
-// String returns canonical text, or an empty string for an unassigned value.
+// String returns canonical uppercase text, or empty text when unassigned.
 func (id ID) String() string {
 	if !id.valid {
 		return ""
@@ -96,7 +111,8 @@ func (id ID) StringLower() string {
 // LogValue redacts the ULID from structured logs.
 func (id ID) LogValue() slog.Value { return slog.StringValue("[REDACTED]") }
 
-// Inspect returns the millisecond timestamp exposed by the ULID.
+// Inspect reports ULID sortability and, for assigned values, the embedded UTC
+// millisecond timestamp. An unassigned value has HasTime false.
 func (id ID) Inspect() identifier.Inspection {
 	inspection := identifier.Inspection{Family: identifier.FamilyULID, Sortable: true}
 	if id.valid {
@@ -111,7 +127,8 @@ func (id ID) Inspect() identifier.Inspection {
 	return inspection
 }
 
-// MarshalText implements encoding.TextMarshaler.
+// MarshalText returns newly allocated canonical text, or identifier.ErrInvalid
+// when unassigned.
 func (id ID) MarshalText() ([]byte, error) {
 	if !id.valid {
 		return nil, fmt.Errorf("%w: unassigned ULID", identifier.ErrInvalid)
@@ -120,7 +137,8 @@ func (id ID) MarshalText() ([]byte, error) {
 	return []byte(id.String()), nil
 }
 
-// UnmarshalText implements encoding.TextUnmarshaler.
+// UnmarshalText parses text and replaces id only on success. Invalid input
+// wraps identifier.ErrInvalid; input bytes are not retained.
 func (id *ID) UnmarshalText(text []byte) error {
 	if len(text) != textLength {
 		return fmt.Errorf("%w: ULID text length is invalid", identifier.ErrInvalid)
@@ -135,7 +153,8 @@ func (id *ID) UnmarshalText(text []byte) error {
 	return nil
 }
 
-// MarshalBinary returns a copied 16-byte representation.
+// MarshalBinary returns a new 16-byte representation, or identifier.ErrInvalid
+// when unassigned.
 func (id ID) MarshalBinary() ([]byte, error) {
 	if !id.valid {
 		return nil, fmt.Errorf("%w: unassigned ULID", identifier.ErrInvalid)
@@ -147,7 +166,9 @@ func (id ID) MarshalBinary() ([]byte, error) {
 	return result, nil
 }
 
-// UnmarshalBinary validates a 16-byte representation.
+// UnmarshalBinary requires exactly 16 bytes and copies them on success.
+// Invalid input wraps identifier.ErrInvalid and leaves id unchanged.
+// Every bit pattern, including all-zero bytes, is an assigned value.
 func (id *ID) UnmarshalBinary(data []byte) error {
 	if len(data) != 16 {
 		return fmt.Errorf("%w: ULID binary length is invalid", identifier.ErrInvalid)
@@ -169,7 +190,9 @@ func (id ID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(id.String())
 }
 
-// UnmarshalJSON decodes canonical text and accepts null as unassigned.
+// UnmarshalJSON parses a bounded JSON string, or clears id for the exact token
+// null. Invalid input wraps identifier.ErrInvalid and leaves id unchanged.
+// Encoded input is limited to 158 bytes, including quotes and escapes.
 func (id *ID) UnmarshalJSON(data []byte) error {
 	if bytes.Equal(data, []byte("null")) {
 		*id = ID{}
@@ -194,7 +217,7 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// Value implements driver.Valuer using canonical text.
+// Value returns canonical text for database/sql, or nil (SQL NULL) when unassigned.
 func (id ID) Value() (driver.Value, error) {
 	if !id.valid {
 		return nil, nil
@@ -203,7 +226,9 @@ func (id ID) Value() (driver.Value, error) {
 	return id.String(), nil
 }
 
-// Scan implements sql.Scanner for text, raw bytes, and NULL.
+// Scan accepts canonical strings, byte slices, or nil (SQL NULL). A 16-byte
+// slice is interpreted as binary; other slices are text. Invalid input wraps
+// identifier.ErrInvalid and leaves id unchanged; nil clears id. Bytes are copied.
 func (id *ID) Scan(src any) error {
 	switch value := src.(type) {
 	case nil:
@@ -229,7 +254,12 @@ func (id *ID) Scan(src any) error {
 	}
 }
 
-// Generator owns its clock, entropy source, mutex, and monotonic state.
+// Generator serializes New calls and owns a millisecond monotonic sequence.
+// Construct it with NewGenerator; its zero value is not ready for use and it
+// must not be copied after first use. Clock and entropy are borrowed, never
+// closed. They run under the lock, must not reenter the generator, and need
+// their own synchronization if shared elsewhere. Ordering is per instance,
+// not distributed uniqueness.
 type Generator struct {
 	mutex       sync.Mutex
 	clock       identifier.Clock
@@ -252,8 +282,12 @@ func NewGenerator(clock identifier.Clock, entropy io.Reader) *Generator {
 	return &Generator{clock: clock, entropy: entropy}
 }
 
-// New generates a ULID, incrementing entropy within a millisecond and
-// reporting clock rollback or entropy exhaustion.
+// New generates a ULID with fresh entropy on each new millisecond and an
+// incremented 80-bit payload within that millisecond. Failure returns a zero ID:
+// identifier.ErrInvalid for timestamps outside 48-bit Unix milliseconds,
+// ErrClockRollback for rollback, ErrOverflow for payload exhaustion, and
+// ErrEntropy for reader failures. Failed calls preserve the committed sequence
+// but may consume entropy. Clock/reader calls can block without cancellation.
 func (generator *Generator) New() (ID, error) {
 	generator.mutex.Lock()
 	defer generator.mutex.Unlock()
@@ -294,6 +328,10 @@ func (generator *Generator) New() (ID, error) {
 	return id, nil
 }
 
+// The pinned ULID specification's Monotonicity rule increments the 80-bit
+// random field without changing the timestamp (IDENTIFIER-ULID-DEC-002;
+// TestGeneratorAcceptsTimestampAndCarryBoundaries). Increment a copy so failure
+// leaves the last issued value intact.
 func increment(value *[16]byte) bool {
 	for position := 15; position >= 6; position-- {
 		value[position]++

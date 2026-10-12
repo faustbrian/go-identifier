@@ -1,5 +1,12 @@
-// Package typeid implements the TypeID specification version 0.3.0 with
-// canonical prefixes, strict Base32, and UUIDv7-backed generation.
+// Package typeid implements TypeID specification 0.3.0 pinned at revision
+// be8ff0daf5dc1f6d40c62a03cfc89945263a69af. Start with Parse, FromUUID, or
+// NewGenerator. Parsing accepts every 128-bit suffix; generation uses UUIDv7.
+// The package requires no service or cgo and starts no background work.
+//
+// Prefixes are application labels, not authorization boundaries. Values may
+// reveal creation time, and generators do not coordinate distributed uniqueness.
+// Parsing/zero semantics and generation are IDENTIFIER-TYPEID-DEC-001/002 in
+// docs/specification-decisions.md.
 package typeid
 
 import (
@@ -27,13 +34,17 @@ const (
 
 // ID is an immutable TypeID. Its Go zero value is the official unprefixed
 // all-zero TypeID; the validity bit preserves every other prefix/value pair.
+// Read-only methods may run concurrently. Decode methods require a non-nil
+// receiver and exclusive access; they leave it unchanged on invalid input.
 type ID struct {
 	value  [16]byte
 	prefix string
 	valid  bool
 }
 
-// ValidatePrefix enforces the TypeID 0.3.0 prefix grammar.
+// ValidatePrefix accepts empty text or up to 63 lowercase ASCII letters and
+// underscores, with a letter at each end. Consecutive interior underscores are
+// valid. Invalid input wraps identifier.ErrInvalid.
 func ValidatePrefix(prefix string) error {
 	if len(prefix) > 63 {
 		return fmt.Errorf("%w: TypeID prefix exceeds 63 characters", identifier.ErrInvalid)
@@ -56,6 +67,11 @@ func ValidatePrefix(prefix string) error {
 
 // Parse accepts only canonical TypeID 0.3.0 text. Parsing permits every
 // 128-bit suffix required by the official vectors; generation remains UUIDv7.
+// Text is 26 bytes, or a nonempty prefix plus '_' plus the 26-byte suffix.
+// Failure returns the zero ID with identifier.ErrInvalid.
+// The pinned specification's Type Prefix/Base32 Encoding and official
+// valid.json/invalid.json corpora protect IDENTIFIER-TYPEID-DEC-001;
+// TestOfficialValidCorpus and TestOfficialInvalidCorpus exercise that decision.
 func Parse(text string) (ID, error) {
 	if len(text) < minimumTextLength || len(text) > maximumTextLength {
 		return ID{}, fmt.Errorf("%w: TypeID text length is invalid", identifier.ErrInvalid)
@@ -91,7 +107,9 @@ func Parse(text string) (ID, error) {
 	return FromBytes(prefix, [16]byte(decoded))
 }
 
-// FromBytes encodes any 128-bit value as permitted by the TypeID parser.
+// FromBytes validates prefix and copies any 128-bit suffix. Empty prefix with
+// all-zero bytes yields the Go zero ID. Invalid prefix returns the zero ID with
+// identifier.ErrInvalid; UUID version and variant are deliberately unrestricted.
 func FromBytes(prefix string, value [16]byte) (ID, error) {
 	if err := ValidatePrefix(prefix); err != nil {
 		return ID{}, err
@@ -103,13 +121,16 @@ func FromBytes(prefix string, value [16]byte) (ID, error) {
 	return ID{value: value, prefix: prefix, valid: true}, nil
 }
 
-// UUIDSource is a canonical UUID string or a validated identifier UUID.
+// UUIDSource constrains FromUUID to an exact string or identifieruuid.ID type.
+// Array values are copied as supplied; this constraint does not establish validity.
 type UUIDSource interface {
 	string | identifieruuid.ID
 }
 
 // FromUUID encodes any 128-bit UUID value with a validated prefix. String
-// input permits the non-RFC versions and variants required by the TypeID spec.
+// input must be lowercase hyphenated hex but permits every version and variant,
+// including all-zero values. Array input is copied without UUID validation.
+// Invalid prefix or text returns the zero ID with identifier.ErrInvalid.
 func FromUUID[T UUIDSource](prefix string, value T) (ID, error) {
 	var bytes [16]byte
 	switch typed := any(value).(type) {
@@ -186,7 +207,9 @@ func (id ID) String() string {
 // LogValue redacts the TypeID from structured logs.
 func (id ID) LogValue() slog.Value { return slog.StringValue("[REDACTED]") }
 
-// Inspect reports the suffix version and UUIDv7 timestamp when present.
+// Inspect reports the suffix version nibble and a UTC millisecond timestamp
+// only for assigned RFC-variant UUIDv7 suffixes. Sortable is true for assigned
+// IDs even when their unrestricted suffix does not expose a timestamp.
 func (id ID) Inspect() identifier.Inspection {
 	inspection := identifier.Inspection{
 		Family:   identifier.FamilyTypeID,
@@ -204,12 +227,13 @@ func (id ID) Inspect() identifier.Inspection {
 	return inspection
 }
 
-// MarshalText implements encoding.TextMarshaler.
+// MarshalText returns newly allocated canonical text, including the zero TypeID.
 func (id ID) MarshalText() ([]byte, error) {
 	return []byte(id.String()), nil
 }
 
-// UnmarshalText implements encoding.TextUnmarshaler.
+// UnmarshalText parses text and replaces id only on success. Invalid input
+// wraps identifier.ErrInvalid; input bytes are not retained.
 func (id *ID) UnmarshalText(text []byte) error {
 	if len(text) < minimumTextLength || len(text) > maximumTextLength {
 		return fmt.Errorf("%w: TypeID text length is invalid", identifier.ErrInvalid)
@@ -227,7 +251,7 @@ func (id *ID) UnmarshalText(text []byte) error {
 // MarshalBinary encodes canonical text because the prefix is part of a TypeID.
 func (id ID) MarshalBinary() ([]byte, error) { return id.MarshalText() }
 
-// UnmarshalBinary validates canonical text.
+// UnmarshalBinary uses UnmarshalText; raw UUID bytes alone cannot preserve a prefix.
 func (id *ID) UnmarshalBinary(data []byte) error { return id.UnmarshalText(data) }
 
 // MarshalJSON encodes canonical text, including the canonical zero TypeID.
@@ -235,7 +259,9 @@ func (id ID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(id.String())
 }
 
-// UnmarshalJSON decodes canonical text and accepts null as the zero TypeID.
+// UnmarshalJSON parses a bounded JSON string or maps the exact null token to
+// the zero TypeID. Invalid input wraps identifier.ErrInvalid and leaves id unchanged.
+// Encoded input is limited to 542 bytes, including quotes and escapes.
 func (id *ID) UnmarshalJSON(data []byte) error {
 	if bytes.Equal(data, []byte("null")) {
 		*id = ID{}
@@ -260,12 +286,15 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// Value implements driver.Valuer using canonical text.
+// Value returns canonical text for database/sql, including the valid zero TypeID.
+// Unlike an unassigned UUID/ULID/KSUID/NanoID, it never returns SQL NULL.
 func (id ID) Value() (driver.Value, error) {
 	return id.String(), nil
 }
 
-// Scan implements sql.Scanner for text and NULL.
+// Scan accepts strings and text byte slices through Parse; nil maps to the zero
+// TypeID. Invalid sources wrap identifier.ErrInvalid and leave id unchanged.
+// Accepted bytes are not retained.
 func (id *ID) Scan(src any) error {
 	switch value := src.(type) {
 	case nil:
@@ -287,13 +316,17 @@ func (id *ID) Scan(src any) error {
 	}
 }
 
-// Generator owns a prefix and UUIDv7 generator.
+// Generator binds a prefix to a UUIDv7 generator. Concurrent New calls share
+// the source's serialized sequence. Its zero value is not ready for use;
+// construct it with NewGenerator. Ordering is per prefix and source, not global.
 type Generator struct {
 	prefix string
 	uuid   *identifieruuid.V7Generator
 }
 
-// NewGenerator validates prefix and binds it to an owned UUIDv7 generator.
+// NewGenerator validates prefix and retains generator without copying it.
+// Nil selects a fresh default UUIDv7 generator. A source shared with other
+// callers remains one sequence; invalid prefix returns nil with identifier.ErrInvalid.
 func NewGenerator(prefix string, generator *identifieruuid.V7Generator) (*Generator, error) {
 	if err := ValidatePrefix(prefix); err != nil {
 		return nil, err
@@ -305,7 +338,9 @@ func NewGenerator(prefix string, generator *identifieruuid.V7Generator) (*Genera
 	return &Generator{prefix: prefix, uuid: generator}, nil
 }
 
-// New generates a UUIDv7-backed TypeID.
+// New generates a UUIDv7-backed TypeID, inheriting source blocking, entropy,
+// rollback, overflow and time-range behavior. Failure returns the zero ID and
+// wraps the source error, preserving its identifier sentinel classification.
 func (generator *Generator) New() (ID, error) {
 	value, err := generator.uuid.New()
 	if err != nil {
