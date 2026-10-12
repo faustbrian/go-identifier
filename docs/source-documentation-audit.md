@@ -157,3 +157,10 @@ unchanged data instead of manually rewriting external replacement entries.
 This report does not establish hosted CI, remote-main delivery or release
 qualification. No new recurring checker was added in this package; shared
 objective enforcement belongs to the coordinated go-library-tools pass.
+
+## Objective enforcement adoption
+
+The local `source-docs-check` target is required by ordinary/full checks and CI.
+Shared CI uses `source_documentation: check` with the immutable Tools v2.4.0
+workflow and matching authenticated binary/checksum declaration. Structural
+checks do not replace this maintained semantic audit or native docs/examples.
