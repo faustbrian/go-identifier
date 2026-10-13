@@ -1,5 +1,8 @@
 # Migration
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 ## V2 diagnostic redaction
 
 Version 2's error and test-diagnostic surfaces redact

@@ -1,5 +1,8 @@
 # Performance
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 Run `go test ./... -run '^$' -bench . -benchmem -benchtime=1s` on an idle
 pinned host. The suite reports
 allocations and compares maintained implementations: Google UUID, oklog ULID,

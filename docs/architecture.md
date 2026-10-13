@@ -1,5 +1,8 @@
 # Architecture
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 Concrete identifiers have value-copy semantics. UUID's public array is mutable
 by its caller, so outbound encoding assumes an assigned, valid value. Fixed-
 width families return arrays by value, never mutable slices. Other concrete

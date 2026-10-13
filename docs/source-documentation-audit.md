@@ -1,5 +1,8 @@
 # Source documentation audit
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 ## Scope and acceptance
 
 Documentation-only Tier A pass owned by the source-documentation worker.

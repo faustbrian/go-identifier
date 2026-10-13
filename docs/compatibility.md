@@ -1,5 +1,8 @@
 # Compatibility
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 The module requires Go 1.27.0. Public compatibility follows semantic
 versioning. Canonical text and binary encodings are persistence contracts.
 

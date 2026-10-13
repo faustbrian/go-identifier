@@ -1,5 +1,8 @@
 # Identifier specification decisions
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in BCP 14

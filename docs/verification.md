@@ -1,5 +1,8 @@
 # Verification
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 The release gate treats the following suites as required evidence, not as
 claims inferred from statement coverage.
 

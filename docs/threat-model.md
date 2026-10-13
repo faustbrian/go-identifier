@@ -1,5 +1,8 @@
 # Threat model
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 **Model version:** 1.0
 **Applies to:** `github.com/faustbrian/go-identifier/v2` source
 **Reviewed:** 2026-09-13

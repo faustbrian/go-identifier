@@ -1,5 +1,8 @@
 # Identifier selection
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 Choose from requirements, not appearance.
 
 Use UUIDv4 when interoperability and non-disclosure of creation time matter

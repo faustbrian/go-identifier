@@ -1,5 +1,8 @@
 # FAQ
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 ## Which ID is safest?
 
 Safety depends on the requirement. UUIDv4 avoids timestamp leakage; UUIDv7 and

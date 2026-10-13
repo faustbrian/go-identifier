@@ -1,5 +1,8 @@
 # Serialization
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 Every family supports canonical text, JSON strings, binary encoding,
 `database/sql.Scanner`, and `driver.Valuer`. An unassigned Go value generally
 maps to SQL `NULL` and JSON `null`. TypeID follows the official Go

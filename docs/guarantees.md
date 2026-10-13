@@ -1,5 +1,8 @@
 # Guarantees and leakage
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 ## Typed IDs
 
 Generic typed identifiers accept at most 1,024 bytes of canonical text. Their

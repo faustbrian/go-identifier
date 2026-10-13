@@ -1,5 +1,8 @@
 # Database behavior
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 Use PostgreSQL `uuid` for UUID values. UUIDv7 generally improves B-tree page
 locality over UUIDv4, but the timestamp prefix exposes creation time and does
 not make the value globally sequential. The `uuid.ID` pgx methods preserve

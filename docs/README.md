@@ -1,5 +1,8 @@
 # Documentation
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: Documentation map](index.md)
+
 The current source targets
 [`github.com/faustbrian/go-identifier/v2`](https://pkg.go.dev/github.com/faustbrian/go-identifier/v2).
 The released v1 module remains a separate import path and compatibility contract.

@@ -1,10 +1,7 @@
 # identifier
 
 [![CI](https://github.com/faustbrian/go-identifier/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faustbrian/go-identifier/actions/workflows/ci.yml)
-[![CodeQL](https://img.shields.io/badge/CodeQL-required-blue)](https://github.com/faustbrian/go-identifier/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
-[![Mutation](https://img.shields.io/badge/mutation-optional_local_or_full-blue)](CONTRIBUTING.md#verification)
-[![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
+[![Documentation](https://img.shields.io/badge/docs-adoption_and_API-blue)](docs/index.md)
 [![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-identifier/v2.svg)](https://pkg.go.dev/github.com/faustbrian/go-identifier/v2)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-identifier?sort=semver)](https://github.com/faustbrian/go-identifier/releases)
 [![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
@@ -32,6 +29,16 @@ readers, whose lifecycle and correctness remain caller-owned. Generators start
 no background work and
 require no `Close` or `Shutdown`. Tests can inject deterministic clocks and
 entropy through `idtest`.
+
+## Adoption entry points
+
+The root module is `github.com/faustbrian/go-identifier/v2` (stable).
+It requires Go 1.27.0. Pin the published `v2.0.2` root tag
+with `go get github.com/faustbrian/go-identifier/v2@v2.0.2`.
+Root subpackages share this module; they need no separate installation.
+
+Start with the [documentation map](docs/index.md) for package selection,
+examples, operational constraints, and contributor references.
 
 ## Install
 
@@ -116,9 +123,9 @@ selection remain application persistence concerns.
 - [License](LICENSE)
 
 For neighboring packages and composition guidance, see the versioned
-[Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/README.md)
+[Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/README.md)
 and its
-[Foundations family](https://github.com/faustbrian/go-library-tools/blob/v1.4.0/docs/ecosystem/design-language.md#package-families-and-selection).
+[Foundations family](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/design-language.md#package-families-and-selection).
 
 ## Development
 

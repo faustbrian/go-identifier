@@ -1,5 +1,8 @@
 # Security
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: API map](api.md)
+
 The repository-specific, versioned [threat model](threat-model.md) inventories
 assets, trust boundaries, attacker-controlled inputs, controls, and accepted
 risks for the v2 source. Released v1 retains its published

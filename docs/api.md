@@ -1,5 +1,8 @@
 # API map
 
+[Documentation map](index.md) · [Repository README](../README.md)
+[Next: Security](security.md)
+
 The root package exposes common errors, `Clock`, `Generator[T]`,
 `Inspection`, and `ID[Tag]`. A tag is a zero-value `Validator`; the generic ID
 stores canonical text and prevents assignment between different domain tags
