@@ -100,6 +100,9 @@ func unicodeDecompose(out []rune, r rune, compatibility bool, depth int) ([]rune
 }
 
 func unicodeCompose(a, b rune) (rune, bool) {
+	if a < 0 || b < 0 {
+		return 0, false
+	}
 	if a >= 0x1100 && a < 0x1100+19 && b >= 0x1161 && b < 0x1161+21 {
 		return 0xac00 + (a-0x1100)*588 + (b-0x1161)*28, true
 	}

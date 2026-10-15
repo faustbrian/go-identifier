@@ -80,10 +80,11 @@ func punyDecode(encoded string) (string, error) {
 				return "", punyError(encoded)
 			}
 		}
-		if len(output) >= 1024 {
+		length := len(output)
+		if length < 0 || length >= 1024 {
 			return "", punyError(encoded)
 		}
-		x := int32(len(output) + 1)
+		x := int32(length) + 1
 		bias = punyAdapt(i-oldI, x, oldI == 0)
 		n += i / x
 		i %= x
@@ -109,7 +110,7 @@ func punyEncode(prefix, s string) (string, error) {
 	delta, n, bias := int32(0), punyInitialN, punyInitialBias
 	b, remaining := int32(0), int32(0)
 	for _, r := range s {
-		if r < 0x80 {
+		if r >= 0 && r < 0x80 {
 			b++
 			output = append(output, byte(r))
 		} else {
@@ -172,11 +173,11 @@ func punyEncode(prefix, s string) (string, error) {
 
 // punyMadd computes a + (b * c), detecting overflow.
 func punyMadd(a, b, c int32) (next int32, overflow bool) {
-	p := int64(b) * int64(c)
-	if p > math.MaxInt32-int64(a) {
+	p := int64(a) + int64(b)*int64(c)
+	if p < math.MinInt32 || p > math.MaxInt32 {
 		return 0, true
 	}
-	return a + int32(p), false
+	return int32(p), false
 }
 
 func punyDecodeDigit(x byte) (digit int32, ok bool) {

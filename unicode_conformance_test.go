@@ -207,7 +207,7 @@ func TestUnicode151OfficialNontransitionalIDNACorpus(t *testing.T) {
 
 func TestUnicode151DoesNotAdoptNewerToolchainMappings(t *testing.T) {
 	p := fixtureProfile(t, identifier.UnicodeNormalizationNFKC, true, false)
-	// Unicode16 added the Cyrillic TJE pair; Unicode17 outlined Latin letters
+	// Unicode16 added the Cyrillic U+1C89/U+1C8A pair; Unicode17 outlined Latin letters
 	// have compatibility mappings. Both are identity transforms under15.1.
 	for _, s := range []string{"\u1c89", "\U0001ccd6"} {
 		input, err := identifier.NewInput(s)
@@ -221,12 +221,12 @@ func TestUnicode151DoesNotAdoptNewerToolchainMappings(t *testing.T) {
 	}
 	domain := fixtureProfile(t, identifier.UnicodeNormalizationNone, false, true)
 	// CJK ExtensionI entered15.1, not15.0; admitting it prevents relabeling an
-	// older IDNA table as15.1. Newer Unicode16 Cyrillic TJE remains prohibited.
+	// older IDNA table as15.1. Newer Unicode16 Cyrillic U+1C89 remains prohibited.
 	input, err := identifier.NewInput("\U0002ebf0.example")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := identifier.Normalize(input, domain); err != nil {
+	if _, normalizeErr := identifier.Normalize(input, domain); normalizeErr != nil {
 		t.Fatal("Unicode15.1 domain character was rejected")
 	}
 	input, err = identifier.NewInput("\u1c89.example")

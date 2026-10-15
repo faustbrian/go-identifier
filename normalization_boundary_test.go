@@ -119,7 +119,7 @@ func TestIdentityFinalBoundsAndRestoreRejectForgery(t *testing.T) {
 	} {
 		record := value.Record()
 		change(&record)
-		if result, err := identifier.RestoreCanonical(record, p); !errors.Is(err, identifier.ErrInvalid) || result != (identifier.Canonical{}) {
+		if result, restoreErr := identifier.RestoreCanonical(record, p); !errors.Is(restoreErr, identifier.ErrInvalid) || result != (identifier.Canonical{}) {
 			t.Fatal("forged record restored identity")
 		}
 	}
@@ -165,13 +165,13 @@ func TestIdentitySensitiveDiagnosticsAndExplicitProjection(t *testing.T) {
 		}
 	}
 	for _, item := range []any{input, &input, value, &value, ref, &ref} {
-		if data, err := json.Marshal(item); !errors.Is(err, identifier.ErrUnsupported) || len(data) != 0 || strings.Contains(err.Error(), marker) {
+		if data, encodeErr := json.Marshal(item); !errors.Is(encodeErr, identifier.ErrUnsupported) || len(data) != 0 || strings.Contains(encodeErr.Error(), marker) {
 			t.Fatal("implicit serialization disclosed identifier")
 		}
 	}
 	for _, item := range []interface{ MarshalText() ([]byte, error) }{input, &input, value, &value, ref, &ref} {
-		data, err := item.MarshalText()
-		if !errors.Is(err, identifier.ErrUnsupported) || len(data) != 0 {
+		data, textErr := item.MarshalText()
+		if !errors.Is(textErr, identifier.ErrUnsupported) || len(data) != 0 {
 			t.Fatal("text serialization disclosed identifier")
 		}
 	}
@@ -180,8 +180,8 @@ func TestIdentitySensitiveDiagnosticsAndExplicitProjection(t *testing.T) {
 		t.Fatal(err)
 	}
 	var restored identifier.CanonicalRecord
-	if err := json.Unmarshal(data, &restored); err != nil {
-		t.Fatal(err)
+	if decodeErr := json.Unmarshal(data, &restored); decodeErr != nil {
+		t.Fatal(decodeErr)
 	}
 	roundtrip, err := identifier.RestoreCanonical(restored, p)
 	if err != nil || !roundtrip.Equal(value) {
@@ -225,14 +225,14 @@ func TestIdentityDomainLengthsAndCombiningRuns(t *testing.T) {
 	}
 	domain := strings.Repeat("a", 63) + "." + strings.Repeat("b", 63) + "." + strings.Repeat("c", 63) + "." + strings.Repeat("d", 61)
 	for _, text := range []string{domain, domain + ".", "example."} {
-		value, err := identifier.Normalize(identifier.Input(text), p)
-		if err != nil || value.Record().Value != text {
+		value, normalizeErr := identifier.Normalize(identifier.Input(text), p)
+		if normalizeErr != nil || value.Record().Value != text {
 			t.Fatal("valid DNS boundary lost bytes or root dot")
 		}
 	}
 	for _, text := range []string{domain + "x", domain + "x.", strings.Repeat("a", 64) + ".example", ".example", "example..", "user@example", "xn--", "-example", "example-"} {
-		value, err := identifier.Normalize(identifier.Input(text), p)
-		if !errors.Is(err, identifier.ErrNormalization) || value != (identifier.Canonical{}) {
+		value, normalizeErr := identifier.Normalize(identifier.Input(text), p)
+		if !errors.Is(normalizeErr, identifier.ErrNormalization) || value != (identifier.Canonical{}) {
 			t.Fatal("invalid domain became usable")
 		}
 	}

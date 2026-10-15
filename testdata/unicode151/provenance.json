@@ -18,7 +18,8 @@
   "patches": [
     "Repackage and prefix private codec symbols.",
     "Replace input-bearing codec errors with ErrNormalization.",
-    "Remove host unicode16 U+FFFD branch; fixed IDNA table rejects U+FFFD before encoding."
+    "Remove host unicode16 U+FFFD branch; fixed IDNA table rejects U+FFFD before encoding.",
+    "Make ASCII and length conversion bounds explicit; check complete int64 multiply-add before narrowing."
   ],
   "update": "Review new data and checksums, run pinned official corpora, preserve the 15.1 backend for existing profiles; new semantics require new profile identity/version and collision-aware migration."
 }

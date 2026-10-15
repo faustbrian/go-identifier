@@ -71,7 +71,7 @@ func TestIdentityCanonicalRetainsExactProfileAndRequiresFixedPoint(t *testing.T)
 	}
 	projection := canonical.Record()
 	projection.Value = "changed"
-	if canonical.Record() != want {
+	if projection.Value != "changed" || canonical.Record() != want {
 		t.Fatal("record mutation changed canonical ownership")
 	}
 	for _, forged := range []identifier.Input{"", identifier.Input(strings.Repeat("x", 4097)), identifier.Input(string([]byte{0xff}))} {

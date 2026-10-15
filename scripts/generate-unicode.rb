@@ -104,6 +104,18 @@ puny.sub!('func punyError(s string) error { return &labelError{s, code16("A3", "
 branch = "\t\tif unicode16 && r == 0xfffd {\n\t\t\treturn s, &labelError{s, \"A3\"}\n\t\t}\n"
 abort 'upstream encoder changed' unless puny.include?(branch)
 puny.sub!(branch, '')
+# Keep the upstream arithmetic semantics while making bounded conversions local
+# to their guards. The complete multiply-add is safe in int64 for int32 inputs.
+replacements = {
+  "if len(output) >= 1024 {\n\t\t\treturn \"\", punyError(encoded)\n\t\t}\n\t\tx := int32(len(output) + 1)" => "length := len(output)\n\t\tif length < 0 || length >= 1024 {\n\t\t\treturn \"\", punyError(encoded)\n\t\t}\n\t\tx := int32(length) + 1",
+  'if r < 0x80 {' => 'if r >= 0 && r < 0x80 {',
+  "p := int64(b) * int64(c)\n\tif p > math.MaxInt32-int64(a) {" => "p := int64(a) + int64(b)*int64(c)\n\tif p < math.MinInt32 || p > math.MaxInt32 {",
+  'return a + int32(p), false' => 'return int32(p), false'
+}
+replacements.each do |before, after|
+  abort 'upstream arithmetic changed' unless puny.include?(before)
+  puny.sub!(before, after)
+end
 %w[base damp initialBias initialN skew tmax tmin decode encode madd decodeDigit encodeDigit adapt].each do |name|
   puny.gsub!(/\b#{name}\b/, "puny#{name[0].upcase}#{name[1..]}")
 end
@@ -121,7 +133,7 @@ manifest = {
   idna_source: 'https://www.unicode.org/Public/idna/15.1.0/',
   punycode_source: 'golang.org/x/net@v0.59.0/idna/punycode.go', sha256: pins,
   command: 'ruby scripts/generate-unicode.rb testdata/unicode151 && gofmt -w unicode151_tables.go punycode151.go',
-  patches: ['Repackage and prefix private codec symbols.', 'Replace input-bearing codec errors with ErrNormalization.', 'Remove host unicode16 U+FFFD branch; fixed IDNA table rejects U+FFFD before encoding.'],
+  patches: ['Repackage and prefix private codec symbols.', 'Replace input-bearing codec errors with ErrNormalization.', 'Remove host unicode16 U+FFFD branch; fixed IDNA table rejects U+FFFD before encoding.', 'Make ASCII and length conversion bounds explicit; check complete int64 multiply-add before narrowing.'],
   update: 'Review new data and checksums, run pinned official corpora, preserve the 15.1 backend for existing profiles; new semantics require new profile identity/version and collision-aware migration.'
 }
 File.write(File.join(target, 'provenance.json'), JSON.pretty_generate(manifest) + "\n")

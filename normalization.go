@@ -182,23 +182,27 @@ func (c Canonical) Record() CanonicalRecord {
 // Equal compares all identity fields. Invalid zero values never compare equal,
 // including to another zero; equality says nothing about account ownership.
 func (c Canonical) Equal(other Canonical) bool {
-	return c.value != "" && c.profileID != "" && c.profileVersion != 0 && c == other
+	return c.valid() && c == other
+}
+
+func (c Canonical) valid() bool {
+	return c.value != "" && c.profileID != "" && c.profileVersion != 0
 }
 
 // NewReference validates a nonzero canonical, a 1..64 canonical ASCII kind
 // using the profile-ID grammar, and optional display of at most4096 UTF-8 bytes.
 func NewReference(kind string, canonical Canonical, display string) (Reference, error) {
-	if !identityASCII(kind, 64) || !canonical.Equal(canonical) || len(display) > 4096 || !utf8.ValidString(display) {
+	if !identityASCII(kind, 64) || !canonical.valid() || len(display) > 4096 || !utf8.ValidString(display) {
 		return Reference{}, ErrInvalid
 	}
 	return Reference{strings.Clone(kind), canonical, strings.Clone(display)}, nil
 }
 
-func validIdentityText(s string, max int) bool {
-	return len(s) > 0 && len(s) <= max && utf8.ValidString(s)
+func validIdentityText(s string, maximumBytes int) bool {
+	return len(s) > 0 && len(s) <= maximumBytes && utf8.ValidString(s)
 }
-func identityASCII(s string, max int) bool {
-	if len(s) == 0 || len(s) > max {
+func identityASCII(s string, maximumBytes int) bool {
+	if len(s) == 0 || len(s) > maximumBytes {
 		return false
 	}
 	for i, b := range []byte(s) {

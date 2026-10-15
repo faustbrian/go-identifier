@@ -200,7 +200,7 @@ func unicodeValidBidi(label string) bool {
 		}
 	}
 	if rtl {
-		return !(en && an) && (last == "R" || last == "AL" || last == "EN" || last == "AN")
+		return (!en || !an) && (last == "R" || last == "AL" || last == "EN" || last == "AN")
 	}
 	return last == "L" || last == "EN"
 }
