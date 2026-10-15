@@ -4,6 +4,15 @@ All notable changes follow Keep a Changelog and semantic versioning.
 
 ## Unreleased
 
+### Added
+
+- Add immutable versioned identity-normalization profiles, bounded input and
+  canonical values, complete persistence records and validated references.
+  Fixed Unicode 15.1.0 NFC/NFKC, full folding, whitespace and domain IDNA
+  behavior remains independent of later Go toolchains. Existing identifier
+  families are unchanged; changing a profile requires an explicit new version
+  and collision-aware migration rather than reinterpreting stored identities.
+
 ### Documentation
 
 - Clarify typed-ID zero-value decoding, family codec failure/NULL behavior,

@@ -14,6 +14,11 @@ clock, entropy, ordering, leakage, and persistence contract; an identifier is
 never treated as a secret, authorization fact, idempotency proof, or tracing
 context merely because it is unique.
 
+For identity lookup text, use [versioned normalization](docs/normalization.md):
+explicit immutable profiles bind canonical bytes to a policy ID and version,
+using fixed Unicode 15.1.0 data rather than the host Go toolchain's tables.
+These values do not prove account ownership or authorization.
+
 The published v2 module is `github.com/faustbrian/go-identifier/v2`.
 The published v1.0.0 module remains separate; its diagnostic behavior is
 unchanged. Migrate imports and the module dependency explicitly when adopting

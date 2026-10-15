@@ -33,8 +33,74 @@ var (
 	// ErrUnsupported reports a valid but unsupported identifier feature.
 	ErrUnsupported = errors.New("unsupported identifier")
 )
+var ErrNormalization = errors.New("identifier normalization failed")
+    ErrNormalization reports an unusable transformed value, including a
+    prohibited domain, empty result or exceeded output bound. It never includes
+    input text.
+
 
 TYPES
+
+type Canonical struct {
+	// Has unexported fields.
+}
+    Canonical is immutable lookup identity, bound to exact profile ID/version.
+    It is not a display value or authentication evidence. Zero is invalid.
+
+func Normalize(input Input, profile NormalizationProfile) (Canonical, error)
+    Normalize revalidates Input and applies form, full fold, the selected
+    form again, edge whitespace trimming, then optional domain processing.
+    Domain processing always applies its mandated NFC independently of the
+    selected form. The final nonempty UTF-8 result obeys MaximumBytes.
+    Work and intermediate storage are bounded; long combining runs are ordered,
+    not rewritten with CGJ. ErrInvalid denotes invalid input/profile;
+    ErrNormalization denotes unusable transformed output. Errors and ordinary
+    diagnostics are redacted.
+
+func RestoreCanonical(record CanonicalRecord, profile NormalizationProfile) (Canonical, error)
+    RestoreCanonical requires the exact profile binding and proves Value is a
+    fixed point. Unknown/missing/mismatched bindings or forged bytes return
+    ErrInvalid. A record is not normalization or ownership proof by itself.
+
+func (c Canonical) Equal(other Canonical) bool
+    Equal compares all identity fields. Invalid zero values never compare equal,
+    including to another zero; equality says nothing about account ownership.
+
+func (Canonical) Format(s fmt.State, _ rune)
+    Format redacts Canonical; use Record only at an intentional sensitive
+    boundary.
+
+func (Canonical) LogValue() slog.Value
+    LogValue prevents ordinary structured logging from exposing Canonical.
+
+func (Canonical) MarshalJSON() ([]byte, error)
+    MarshalJSON refuses implicit disclosure; serialize the explicit Record
+    instead.
+
+func (Canonical) MarshalText() ([]byte, error)
+    MarshalText refuses implicit disclosure; Record retains required policy
+    metadata.
+
+func (c Canonical) Record() CanonicalRecord
+    Record returns the complete explicit sensitive projection, or zero for zero.
+
+type CanonicalRecord struct {
+	// Value contains sensitive canonical lookup bytes, not display text.
+	Value string
+	// ProfileID retains the exact caller-owned policy identity.
+	ProfileID NormalizationProfileID
+	// ProfileVersion retains the policy revision used to produce Value.
+	ProfileVersion uint32
+}
+    CanonicalRecord is the deliberately sensitive, complete persistence/wire
+    projection. Preserve every field; restoration requires the selected policy.
+    Do not log its fields or serialized bytes.
+
+func (CanonicalRecord) Format(s fmt.State, _ rune)
+    Format redacts the record even though its exported fields remain sensitive.
+
+func (CanonicalRecord) LogValue() slog.Value
+    LogValue redacts the record; separately logging its fields is not protected.
 
 type Clock interface {
 	// Now returns the current instant. It must not reenter the calling generator.
@@ -133,6 +199,28 @@ func (id *ID[Tag]) UnmarshalText(text []byte) error
 func (id ID[Tag]) Value() (driver.Value, error)
     Value implements driver.Valuer. An unassigned ID is stored as SQL NULL.
 
+type Input string
+    Input is enumeration-sensitive, unnormalized UTF-8 text. NewInput validates
+    1..4096 bytes. Direct conversions are revalidated by Normalize. Ordinary
+    formatting/logging is redacted; explicit string conversion exposes the
+    input.
+
+func NewInput(text string) (Input, error)
+    NewInput validates byte length/encoding without trimming or normalizing.
+
+func (Input) Format(s fmt.State, _ rune)
+    Format redacts Input for every formatting verb, including quoted and Go
+    syntax.
+
+func (Input) LogValue() slog.Value
+    LogValue prevents ordinary structured logging from exposing Input.
+
+func (Input) MarshalJSON() ([]byte, error)
+    MarshalJSON refuses implicit Input disclosure with ErrUnsupported.
+
+func (Input) MarshalText() ([]byte, error)
+    MarshalText refuses implicit Input disclosure with ErrUnsupported.
+
 type Inspection struct {
 	// Family identifies the representation inspected, even for a zero value.
 	Family Family
@@ -149,6 +237,94 @@ type Inspection struct {
 }
     Inspection exposes only properties actually defined by an identifier family.
 
+type NormalizationProfile struct {
+	// Has unexported fields.
+}
+    NormalizationProfile is an immutable, concurrently reusable policy.
+    Its zero value is invalid. Callers must change ID/version and migrate
+    collision-aware when changing policy; there is no global registry or
+    implicit reinterpretation.
+
+func NewNormalizationProfile(spec NormalizationProfileSpec) (NormalizationProfile, error)
+    NewNormalizationProfile copies a bounded explicit policy. Invalid bounds,
+    identity/version or unspecified form return ErrInvalid; unknown forms return
+    ErrUnsupported. No registry, toolchain table selection or hidden defaults
+    apply.
+
+type NormalizationProfileID string
+    NormalizationProfileID identifies a migration-owned policy: 1..128 ASCII
+    bytes matching [a-z0-9][a-z0-9._-]*. An ID does not authenticate its policy.
+
+type NormalizationProfileSpec struct {
+	// ID names the caller-owned migration policy, not an authentication fact.
+	ID NormalizationProfileID
+	// Version is the positive policy revision persisted with canonical bytes.
+	Version uint32
+	// Unicode explicitly selects None, NFC or NFKC using fixed 15.1.0 tables.
+	Unicode UnicodeNormalization
+	// CaseFold applies default full non-Turkic folding between normalization passes.
+	CaseFold bool
+	// TrimSpace removes only leading and trailing Unicode 15.1 White_Space.
+	TrimSpace bool
+	// IDNA selects whole-domain nontransitional UTS #46, not email parsing.
+	IDNA bool
+	// MaximumBytes bounds the final nonempty UTF-8 result to 1..4096 bytes.
+	MaximumBytes uint32
+}
+    NormalizationProfileSpec is copied on construction. Version must be
+    positive; MaximumBytes bounds the final result to 1..4096 bytes. CaseFold
+    means default non-Turkic full Unicode 15.1 folding, not locale-sensitive
+    lowercasing. TrimSpace removes only leading/trailing Unicode 15.1
+    White_Space. IDNA treats the whole value as a domain, using nontransitional
+    UTS #46, STD3, ContextJ, Bidi, DNS length and hyphen checks; it is not an
+    email-address parser.
+
+type Reference struct {
+	// Kind identifies the caller's identifier category using bounded ASCII.
+	Kind string
+	// Canonical binds lookup identity to its normalization profile and version.
+	Canonical Canonical
+	// Display is optional sensitive UTF-8 presentation text, at most 4096 bytes.
+	Display string
+}
+    Reference carries identifier identity and optional display text,
+    never authentication/authorization evidence. NewReference validates it.
+    Exported fields permit caller construction; such values are not validated by
+    the type.
+
+func NewReference(kind string, canonical Canonical, display string) (Reference, error)
+    NewReference validates a nonzero canonical, a 1..64 canonical ASCII kind
+    using the profile-ID grammar, and optional display of at most4096 UTF-8
+    bytes.
+
+func (Reference) Format(s fmt.State, _ rune)
+    Format redacts both canonical identity and display text for every verb.
+
+func (Reference) LogValue() slog.Value
+    LogValue prevents ordinary structured logging from exposing Reference
+    fields.
+
+func (Reference) MarshalJSON() ([]byte, error)
+    MarshalJSON refuses implicit canonical and display disclosure with
+    ErrUnsupported.
+
+func (Reference) MarshalText() ([]byte, error)
+    MarshalText refuses implicit canonical and display disclosure with
+    ErrUnsupported.
+
+type UnicodeNormalization uint8
+    UnicodeNormalization explicitly selects a fixed Unicode 15.1.0 form.
+
+const (
+	// UnicodeNormalizationUnspecified is invalid; there is no implicit form.
+	UnicodeNormalizationUnspecified UnicodeNormalization = iota
+	// UnicodeNormalizationNone preserves Unicode distinctions.
+	UnicodeNormalizationNone
+	// UnicodeNormalizationNFC selects canonical decomposition and composition.
+	UnicodeNormalizationNFC
+	// UnicodeNormalizationNFKC additionally removes compatibility distinctions.
+	UnicodeNormalizationNFKC
+)
 type Validator interface {
 	// Validate returns nil only for accepted canonical text. Its error details
 	// and cause are hidden behind ErrInvalid; panics are not recovered.

@@ -9,6 +9,13 @@ stores canonical text and prevents assignment between different domain tags
 without reflection or runtime registration. `MaxTypedIDBytes` and
 `MaxTypedIDJSONBytes` define the pre-validation and pre-decoding input bounds.
 
+Identity lookup uses `NewInput`, `NewNormalizationProfile`, `Normalize` and
+`NewReference`. Immutable `Canonical` values preserve exact profile identity
+and version; `Record` projects the complete sensitive persistence value and
+`RestoreCanonical` validates both the binding and normalization fixed point.
+See [versioned normalization](normalization.md) for processing order, bounded
+Unicode/IDNA behavior, privacy and collision-aware migration requirements.
+
 `uuid` parses RFC UUID versions 1 through 8, generates v4 and monotonic v7, and
 supports pgx UUID values. `ulid` parses consistent uppercase or lowercase text,
 generates monotonic ULIDs, and exposes uppercase and lowercase output. `typeid`

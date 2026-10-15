@@ -37,6 +37,11 @@ operations:
     race: true
     count: 1
     timeout: 2m
+  - type: go-test
+    packages: ["."]
+    run: '^Test(Identity|Unicode151).*$'
+    count: 1
+    timeout: 1m
 - module: "."
   gate: conformance
   steps:
@@ -46,7 +51,7 @@ operations:
     timeout: 20m
   - type: go-test
     packages: ["."]
-    run: '^TestPinnedCrossLanguageVectors$|^TestMaintainedImplementationInteroperability$|^TestEverySharedGeneratorHasAtomicUniqueStateTransitions$|^TestNanoIDRejectionSamplingHasNoModuloBias$'
+    run: '^TestPinnedCrossLanguageVectors$|^TestMaintainedImplementationInteroperability$|^TestEverySharedGeneratorHasAtomicUniqueStateTransitions$|^TestNanoIDRejectionSamplingHasNoModuloBias$|^TestIdentity|^TestUnicode151'
     count: 1
     timeout: 20m
 - module: "."
@@ -63,6 +68,11 @@ operations:
 - module: "."
   gate: fuzz
   steps:
+  - type: go-test
+    packages: ["."]
+    fuzz: '^FuzzIdentityNormalization$'
+    budget: 2s
+    timeout: 2m
   - type: go-test
     packages: ["."]
     fuzz: '^FuzzUUIDParse$'
