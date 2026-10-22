@@ -19,6 +19,12 @@ All notable changes follow Keep a Changelog and semantic versioning.
   custom NanoID configuration retention, and per-instance generator blocking,
   ownership, ordering, and entropy limits without changing runtime behavior.
 
+## 2.1.0 - 2026-10-22
+
+### Changed
+
+- Publish the current source and documentation with a fresh immutable tag.
+
 ## 2.0.2 - 2026-10-07
 
 ### Changed
