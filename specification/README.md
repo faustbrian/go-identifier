@@ -20,6 +20,54 @@ observed peer behavior without treating popularity as normative authority.
 
 ## Upstream review history
 
+### 2026-11-26
+
+All 14 declared authorities were retrieved. Pinned sources, RFC errata, and
+the ULID and KSUID feeds remain byte-identical; only the four commit feeds
+below advanced. Each current feed was retrieved twice and both responses were
+byte-identical. The 30-day interval and every authority URL remain unchanged.
+
+| Authority | Previous SHA-256 | Current SHA-256 |
+| --- | --- | --- |
+| `typeid-spec-updates` | `b48e597eefcf5b23d2cc5b96a010bc74bac87237c45bef29e2619ae01276fc3f` | `87c54f79b1007d39d49764baee1e5dc0646f4d78883024f841584a11da727de4` |
+| `nanoid-reference-updates` | `42849863afa046bebd96538b8ea5f1566070bdb3c645e1e38ab4fc0b2f942cf9` | `ec506fb171b2e19b0fece33d73cc75ac2676dc5a283977472e3242784ac81082` |
+| `laravel-framework-updates` | `373d308279677b33ccd99cf473034d4f77cd4476a8967d3f4426d47e87b66db3` | `530a4d4315ee7f5f60e714a7a8e0c34f575b80d94bb3f21db03c281aa5a6973f` |
+| `spatie-sluggable-updates` | `41352403882cb0b191dc7cfc9e8b5f3da6a38bf9b298728558a4b15d85c5f924` | `4b057f7454b96ed8f1852854d88e33c7058da3b7ddb601bcab9155b09c496925` |
+
+- `typeid-spec-updates`: the range
+  `be8ff0daf5dc1f6d40c62a03cfc89945263a69af...23d60e701166f783b9f7175a9114ebfd4bcc22e3`
+  contains five commits changing only the root README community
+  implementation table (a new .NET entry), `devbox.lock`, `go.mod`, and
+  `go.sum`. Nothing under `spec/` changed, so the pinned TypeID 0.3.0
+  specification, its official valid and invalid corpus, and both TypeID
+  decisions remain unchanged.
+- `nanoid-reference-updates`: the range
+  `3167e108865702c0539d8e552365ed840ac9d8d9...ad8bc48da1da1e07398c8ad830c9020f6a8d10d2`
+  contains seven commits. `index.js` rewrites the chunked `fillRandom` loop
+  without `Math.min`; `subarray` already clamps the final chunk, so the bytes
+  requested are identical. The CLI now rejects non-integer sizes, and the rest
+  is README port links, JSR removal, benchmark, CI, and dependency updates. The
+  URL alphabet, default length 21, and uniform sampling are unchanged, so the
+  Nano ID decision, its frozen algorithm, and its deterministic vector remain
+  in place.
+- `laravel-framework-updates`: the range
+  `725381d29c9fa132dfe042f8458a9ed31d27a040...321caf77d6c037577434e177c3bf280abb2b3513`
+  contains 432 commits through v13.44.1. `Str.php` changes only `remove`
+  (Traversable subjects) and `substrCount`; the `slug`, `ascii`, and `lower`
+  method bodies are byte-identical at both endpoints and to the frozen pin
+  `138e5806ed7e4e21591948b661119d3810f052cf`. `Support/composer.json` changes
+  only a `league/uri` suggestion, and `voku/portable-ascii` remains `^2.0.2`.
+  The English slug decision, source and vector pins, and outputs are unchanged.
+- `spatie-sluggable-updates`: the range
+  `fc0e14317675a2125bcea58ed07ef81faa6fa860...0a0527bfcf6a4fcae0c81be7d5a65369743d04a4`
+  contains 27 commits through the 6.0.0 release: self-healing route and query
+  bindings, named-column route binding, `HasUuids` and `HasUlids` trait
+  variants, PHP 8.4 and Laravel 13 minimums, and documentation. `SlugOptions.php`
+  is unchanged and the `HasSlug.php` edits are confined to route-binding
+  resolution. The slug decision is a pure normalization boundary without
+  persistence uniqueness or suffixing, and route binding lies outside it, so
+  the English slug decision is unchanged.
+
 ### 2026-10-07
 
 All 14 declared authorities were retrieved. Pinned sources, RFC errata, and

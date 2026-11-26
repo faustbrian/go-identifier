@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-07",
+  "reviewed_at": "2026-11-26",
   "review_interval_days": 30,
   "authorities": [
     {
@@ -45,7 +45,7 @@
       "id": "typeid-spec-updates",
       "kind": "releases",
       "url": "https://github.com/jetify-com/typeid/commits/main.atom",
-      "sha256": "b48e597eefcf5b23d2cc5b96a010bc74bac87237c45bef29e2619ae01276fc3f",
+      "sha256": "87c54f79b1007d39d49764baee1e5dc0646f4d78883024f841584a11da727de4",
       "specifications": ["TypeID specification 0.3.0 at be8ff0daf5dc1f6d40c62a03cfc89945263a69af"]
     },
     {
@@ -75,7 +75,7 @@
       "id": "nanoid-reference-updates",
       "kind": "releases",
       "url": "https://github.com/ai/nanoid/commits/main.atom",
-      "sha256": "42849863afa046bebd96538b8ea5f1566070bdb3c645e1e38ab4fc0b2f942cf9",
+      "sha256": "ec506fb171b2e19b0fece33d73cc75ac2676dc5a283977472e3242784ac81082",
       "specifications": ["Nano ID reference profile at 07a39d62d84c21af5046fe6b2ef7b3e36ee557db"]
     },
     {
@@ -98,14 +98,14 @@
       "id": "laravel-framework-updates",
       "kind": "releases",
       "url": "https://github.com/laravel/framework/commits/13.x.atom",
-      "sha256": "373d308279677b33ccd99cf473034d4f77cd4476a8967d3f4426d47e87b66db3",
+      "sha256": "530a4d4315ee7f5f60e714a7a8e0c34f575b80d94bb3f21db03c281aa5a6973f",
       "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
     },
     {
       "id": "spatie-sluggable-updates",
       "kind": "releases",
       "url": "https://github.com/spatie/laravel-sluggable/commits/main.atom",
-      "sha256": "41352403882cb0b191dc7cfc9e8b5f3da6a38bf9b298728558a4b15d85c5f924",
+      "sha256": "4b057f7454b96ed8f1852854d88e33c7058da3b7ddb601bcab9155b09c496925",
       "specifications": ["Laravel 13 English slug profile at 138e5806ed7e4e21591948b661119d3810f052cf"]
     }
   ]
